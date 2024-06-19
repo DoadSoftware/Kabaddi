@@ -693,11 +693,12 @@ function processUserSelection(whichInput)
 		$("#kabaddi_div").show();
 		break;
 	case 'playerRole':
-	     //alert(whichInput.value);
+	     //alert(whichInput.id);
 	     //alert($('.player_role_dropsowns option:selected').val())
 	     player_role_id = whichInput.id;
-	     player_role_value = whichInput.value
-	     processKabaddiProcedures('POPULATE_RAIDER')
+	     player_role_value = whichInput.value;
+	     processWaitingButtonSpinner('START_WAIT_TIMER');
+	     processKabaddiProcedures('POPULATE_RAIDER',whichInput);
 	     $('.player_role_dropsowns').not($(whichInput)).prop('selectedIndex', 0);
 		break;
 			
@@ -803,8 +804,8 @@ function processUserSelection(whichInput)
 			return false;
 		}
 		for(var tm=1;tm<=2;tm++) {
-			for(var i=1;i<6;i++) {
-				for(var j=i+1;j<=6;j++) {
+			for(var i=1;i<7;i++) {
+				for(var j=i+1;j<=7;j++) {
 					if(tm == 1) {
 						if(document.getElementById('homePlayer_' + i).selectedIndex == document.getElementById('homePlayer_' + j).selectedIndex) {
 							alert(document.getElementById('homePlayer_' + i).options[
@@ -1195,6 +1196,10 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 	case 'LOG_EVENT':
 		value_to_process =  whichInput.id + ',' + team_id;
 		break;
+		
+	case 'POPULATE_RAIDER':
+		value_to_process =  whichInput.id.split('_')[1] + ',' + whichInput.value;
+		break;	
 	
 	case 'UNDO':
 		value_to_process = $('#number_of_undo_txt').val();
@@ -2042,38 +2047,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 	var addSelect = false;
 	
 	switch (whatToProcess) {
-		case 'POPULATE-PLAYER_CAREER' :
-		
-		$('#selectPlayerName').empty();
-		if(match_data.liveData.lineUp[0].contestantId == $('#selectTeams option:selected').val()){
-			match_data.liveData.lineUp.forEach(function(lu,index,arr){
-				if(lu.contestantId == $('#selectTeams option:selected').val()){
-					lu.player.forEach(function(pl,index,arr){
-						$('#selectPlayerName').append(
-							$(document.createElement('option')).prop({
-							value: pl.playerId,
-							text: pl.firstName
-						}))
-					});
-				}
-			});
-		}
-		else if(match_data.liveData.lineUp[1].contestantId == $('#selectTeams option:selected').val()){
-			match_data.liveData.lineUp.forEach(function(lu,index,arr){
-				if(lu.contestantId == $('#selectTeams option:selected').val()){
-					lu.player.forEach(function(pl,index,arr){
-						$('#selectPlayerName').append(
-							$(document.createElement('option')).prop({
-							value: pl.playerId,
-							text: pl.firstName
-						}))
-					});
-				}
-			});
-		}
-		break;
 	
-
 	case 'POPULATE-PLAYER':
 		$('#selectPlayer').empty();
 		if(match_data.homeTeamId ==  $('#selectTeam option:selected').val()){
@@ -4457,7 +4431,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 		select.style = 'width:75%';
 		select.id = 'overwrite_match_stats_player_id';
 		
-		for(i=1;i<=11;i++){
+		for(i=0;i<=15;i++){
 			option = document.createElement('option');
 			option.value = i;
 		    option.text = 'Points - ' + i;
@@ -4554,11 +4528,11 @@ function addItemsToList(whatToProcess, dataToProcess)
 			table.appendChild(thead);
 
 			tbody = document.createElement('tbody');
-			max_cols = parseInt(5 + parseInt($('#homeSubstitutesPerTeam option:selected').val()));
+			max_cols = parseInt(6 + parseInt($('#homeSubstitutesPerTeam option:selected').val()));
 			if(parseInt($('#homeSubstitutesPerTeam option:selected').val()) < parseInt($('#awaySubstitutesPerTeam option:selected').val())) {
-				max_cols = parseInt(5 + parseInt($('#awaySubstitutesPerTeam option:selected').val()));
+				max_cols = parseInt(6 + parseInt($('#awaySubstitutesPerTeam option:selected').val()));
 			}else if(parseInt($('#homeSubstitutesPerTeam option:selected').val()) > parseInt($('#awaySubstitutesPerTeam option:selected').val())) {
-				max_cols = parseInt(5 + parseInt($('#homeSubstitutesPerTeam option:selected').val()));
+				max_cols = parseInt(6 + parseInt($('#homeSubstitutesPerTeam option:selected').val()));
 			}
 
 			for(var i=0; i <= max_cols; i++) {
@@ -4570,12 +4544,12 @@ function addItemsToList(whatToProcess, dataToProcess)
 					addSelect = false;
 					switch(j) {
 					case 0: case 1:
-						if(i <= parseInt(5 + parseInt($('#homeSubstitutesPerTeam option:selected').val()))) {
+						if(i <= parseInt(6 + parseInt($('#homeSubstitutesPerTeam option:selected').val()))) {
 							addSelect = true;
 						}
 						break;
 					case 2: case 3:
-						if(i <= parseInt(5 + parseInt($('#awaySubstitutesPerTeam option:selected').val()))) {
+						if(i <= parseInt(6 + parseInt($('#awaySubstitutesPerTeam option:selected').val()))) {
 							addSelect = true;
 						}
 						break;
@@ -4663,7 +4637,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 								}
 							    select.appendChild(option);
 							}
-							if(i <= 6) {
+							if(i <= 7) {
 								switch(j) {
 								case 1: 
 									select.value = dataToProcess.homeSquad[i].captainGoalKeeper;
@@ -4673,17 +4647,17 @@ function addItemsToList(whatToProcess, dataToProcess)
 									break;
 								}
 							}
-							if(i > 5 && (i-6) <= dataToProcess.homeSubstitutes.length -1){
+							if(i > 6 && (i-7) <= dataToProcess.homeSubstitutes.length -1){
 								switch(j) {
 								case 1:
-									select.value = dataToProcess.homeSubstitutes[i-6].captainGoalKeeper;
+									select.value = dataToProcess.homeSubstitutes[i-7].captainGoalKeeper;
 									break;
 								}
 							}
-							if(i > 5 && (i-6) <= dataToProcess.awaySubstitutes.length -1){
+							if(i > 6 && (i-7) <= dataToProcess.awaySubstitutes.length -1){
 								switch(j) {
 								case 3:
-									select.value = dataToProcess.awaySubstitutes[i-6].captainGoalKeeper;
+									select.value = dataToProcess.awaySubstitutes[i-7].captainGoalKeeper;
 									break;
 								}
 							}
@@ -5016,7 +4990,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 		for(var iRow=0;iRow<=0;iRow++) {
 			
 			row = tbody.insertRow(tbody.rows.length);
-			max_cols = 5;
+			max_cols = 6;
 			
 			for(var iCol=0;iCol<=max_cols;iCol++) {
 				
@@ -5050,6 +5024,10 @@ function addItemsToList(whatToProcess, dataToProcess)
 						option.name = 'cancel_event_btn';
 						option.id = option.name;
 						option.value = 'Cancel';
+					case 5:
+						option.name = 'raider_event_btn';
+						option.id = option.name;
+						option.value = 'Raider';	
 					}
 					
 					break;
@@ -5149,7 +5127,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 						
 						case 'points':
 						
-							for(var ibound=1; ibound<=11; ibound++) 
+							for(var ibound=0; ibound<=15; ibound++) 
 							{
 						    	anchor = document.createElement('a');
 							    anchor.className = 'btn btn-success';
@@ -5263,7 +5241,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 			for(var i = 0; i < 1; i++){
 				row = tbody.insertRow(tbody.rows.length);
 				//tr = document.createElement('tr');
-				for (var j = 0; j <= 3; j++) {
+				for (var j = 0; j <= 1; j++) {
 				    anchor = document.createElement('a');
 				    /*th = document.createElement('th'); // Column
 					th.scope = 'col';*/
@@ -5275,7 +5253,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 						anchor.innerHTML = dataToProcess.homeTeam.teamName1 + ': ' + dataToProcess.homeTeamScore ;
 					    //th.innerHTML = dataToProcess.homeTeam.teamName1 + ': ' + dataToProcess.homeTeamScore ;
 						break;
-					case 2:
+					case 1:
 						anchor.name = 'awayTeam';
 						anchor.id = 'awayTeam';
 						anchor.value = dataToProcess.awayTeamId;
@@ -5296,7 +5274,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 			tbody = document.createElement('tbody');
 			for(var i = 0; i <= dataToProcess.homeSquad.length - 1; i++) {
 				row = tbody.insertRow(tbody.rows.length);
-				for(var j = 0; j <= 3; j++) {
+				for(var j = 0; j <= 1; j++) {
 					//anchor = document.createElement('a');
 					text = document.createElement('label');
 					switch(j){
@@ -5307,7 +5285,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 						text.innerHTML = dataToProcess.homeSquad[i].jersey_number + ': ' + dataToProcess.homeSquad[i].full_name ;
 						row.insertCell(j).appendChild(text);
 						break;
-					case 1:
+					/*case 1:
 						select = document.createElement('select');
 						select.style = 'width:80%';
 						select.name = 'playerRole';
@@ -5329,15 +5307,15 @@ function addItemsToList(whatToProcess, dataToProcess)
 							}
 						select.setAttribute('onchange','processUserSelection(this);');
 						row.insertCell(j).appendChild(select);
-						break;
-					case 2:
+						break;*/
+					case 1:
 						text.name = 'awayPlayers';
 						text.id = 'awayPlayer_' + dataToProcess.awaySquad[i].playerId;
 						text.value = dataToProcess.awaySquad[i].playerId;
 						text.innerHTML = dataToProcess.awaySquad[i].jersey_number + ': ' + dataToProcess.awaySquad[i].full_name ;
 						row.insertCell(j).appendChild(text);
 						break;
-					case 3:
+					/*case 3:
 						select = document.createElement('select');
 						select.style = 'width:80%';
 						select.name = 'playerRole';
@@ -5359,7 +5337,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 							}
 						select.setAttribute('onchange','processUserSelection(this);');
 						row.insertCell(j).appendChild(select);
-						break;
+						break;*/
 					}
 					
 					text.setAttribute('style','cursor: pointer;');
@@ -5380,7 +5358,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 				
 				row = tbody.insertRow(tbody.rows.length);
 				
-				for(var j = 0; j <= 3; j++) {
+				for(var j = 0; j <= 1; j++) {
 					
 					addSelect = false;
 					
@@ -5390,7 +5368,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 							addSelect = true;
 						}
 						break;
-					case 2:
+					case 1:
 						if(i <= parseInt(dataToProcess.awaySubstitutes.length - 1)) {
 							addSelect = true;
 						}
@@ -5409,7 +5387,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 							text.innerHTML = dataToProcess.homeSubstitutes[i].jersey_number + ': ' + dataToProcess.homeSubstitutes[i].full_name;
 							break;
 							
-						case 2:
+						case 1:
 							text.name = 'awaySubstitutes';
 							text.id = 'awaySubstitute_' + dataToProcess.awaySubstitutes[i].playerId;
 							text.value = dataToProcess.awaySubstitutes[i].playerId;
