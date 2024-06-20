@@ -5,10 +5,6 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.Socket;
-import java.net.URL;
-import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,7 +21,6 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,12 +31,9 @@ import org.xml.sax.SAXException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kabaddi.broadcaster.Kabaddi;
 import com.kabaddi.containers.Scene;
-import com.kabaddi.containers.ScoreBug;
 import com.kabaddi.model.Clock;
-import com.kabaddi.model.Configurations;
 import com.kabaddi.model.Event;
 import com.kabaddi.model.EventFile;
-import com.kabaddi.model.LiveMatchData;
 import com.kabaddi.model.Match;
 import com.kabaddi.model.MatchStats;
 import com.kabaddi.model.Player;
@@ -50,7 +42,6 @@ import com.kabaddi.util.KabaddiFunctions;
 import com.kabaddi.util.KabaddiUtil;
 import com.opencsv.exceptions.CsvException;
 
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 @Controller
@@ -63,17 +54,17 @@ public class IndexController
 	public static String current_date = "";
 	public static String error_message = "";
 	public static Clock session_clock = new Clock();
-	public static Configurations session_configurations;
 	public static List<PrintWriter> print_writers;
 	public static Match session_match;
 	public static EventFile session_event;
 	public static String session_selected_broadcaster;
-	public static Socket session_socket;
 	public static Kabaddi session_kabaddi;
 	public static List<Scene> session_selected_scenes;
 	
-	public static String access_token = "";
-	public static String wtp = "",vtp = "";
+	public static int total_home_points = 0,total_away_points = 0,touches_points = 0;
+	
+	public static String bonus_points = "",superTackel_points = "",
+			superRaid_points = "",allOut_points = "",sucess_unSuccess_points = "";
 	
 	@RequestMapping(value = {"/","/initialise"}, method={RequestMethod.GET,RequestMethod.POST}) 
 	public String initialisePage(ModelMap model) 
@@ -83,15 +74,6 @@ public class IndexController
 		if(current_date == null || current_date.isEmpty()) {
 			current_date = KabaddiFunctions.getOnlineCurrentDate();
 		}
-		model.addAttribute("session_viz_scenes", new File(KabaddiUtil.KABADDI_DIRECTORY + 
-				KabaddiUtil.SCENES_DIRECTORY).listFiles(new FileFilter() {
-			@Override
-		    public boolean accept(File pathname) {
-		        String name = pathname.getName().toLowerCase();
-		        return name.endsWith(".via") && pathname.isFile();
-		    }
-		}));
-
 		model.addAttribute("match_files", new File(KabaddiUtil.KABADDI_DIRECTORY 
 				+ KabaddiUtil.MATCHES_DIRECTORY).listFiles(new FileFilter() {
 			@Override
@@ -101,28 +83,6 @@ public class IndexController
 		    }
 		}));
 		
-		model.addAttribute("configuration_files", new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.CONFIGURATIONS_DIRECTORY).listFiles(new FileFilter() {
-			@Override
-		    public boolean accept(File pathname) {
-		        String name = pathname.getName().toLowerCase();
-		        return name.endsWith(".xml") && pathname.isFile();
-		    }
-		}));
-		
-		if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.CONFIGURATIONS_DIRECTORY + KabaddiUtil.OUTPUT_XML).exists()) {
-			session_configurations = (Configurations)JAXBContext.newInstance(
-					Configurations.class).createUnmarshaller().unmarshal(
-					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.CONFIGURATIONS_DIRECTORY 
-					+ KabaddiUtil.OUTPUT_XML));
-		} else {
-			session_configurations = new Configurations();
-			JAXBContext.newInstance(Configurations.class).createMarshaller().marshal(session_configurations, 
-					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.CONFIGURATIONS_DIRECTORY + 
-					KabaddiUtil.OUTPUT_XML));
-		}
-		
-		model.addAttribute("session_configurations",session_configurations);
-	
 		return "initialise";
 	}
 	
@@ -140,7 +100,6 @@ public class IndexController
 		}));
 		model.addAttribute("session_match", session_match);
 		model.addAttribute("teams", kabaddiService.getTeams());
-		model.addAttribute("formations", kabaddiService.getFormations());
 		model.addAttribute("teamcolor", kabaddiService.getTeamColors());
 		model.addAttribute("grounds", kabaddiService.getGrounds());
 		model.addAttribute("licence_expiry_message",
@@ -152,12 +111,7 @@ public class IndexController
 
 	@RequestMapping(value = {"/match"}, method = {RequestMethod.POST,RequestMethod.GET})
 	public String kabaddiMatchPage(ModelMap model,
-		@RequestParam(value = "selectedBroadcaster", required = false, defaultValue = "") String selectedBroadcaster,
-		@RequestParam(value = "vizIPAddress", required = false, defaultValue = "") String vizIPAddresss,
-		@RequestParam(value = "vizPortNumber", required = false, defaultValue = "") int vizPortNumber,
-		@RequestParam(value = "vizSecondaryIPAddress", required = false, defaultValue = "") String vizSecondaryIPAddress,
-		@RequestParam(value = "vizSecondaryPortNumber", required = false, defaultValue = "") int vizSecondaryPortNumber,
-		@RequestParam(value = "vizScene", required = false, defaultValue = "") String vizScene)
+		@RequestParam(value = "selectedBroadcaster", required = false, defaultValue = "") String selectedBroadcaster)
 			throws IOException, ParseException, JAXBException, InterruptedException, SAXException, ParserConfigurationException, FactoryConfigurationError  
 	{
 		if(current_date == null || current_date.isEmpty()) {
@@ -172,39 +126,7 @@ public class IndexController
 			
 		}else {
 			
-			session_configurations = new Configurations(selectedBroadcaster, vizIPAddresss, vizPortNumber, vizSecondaryIPAddress, vizSecondaryPortNumber);
-			if(vizPortNumber != 0) {
-				session_configurations.setPortNumber(Integer.valueOf(vizPortNumber));
-			}
-
-			JAXBContext.newInstance(Configurations.class).createMarshaller().marshal(session_configurations, 
-					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.CONFIGURATIONS_DIRECTORY + 
-					KabaddiUtil.OUTPUT_XML));
-			
-			print_writers = KabaddiFunctions.processPrintWriter(session_configurations);
-
 			session_selected_broadcaster = selectedBroadcaster;
-			session_selected_scenes = new ArrayList<Scene>();
-			if(!vizIPAddresss.trim().isEmpty() && vizPortNumber != 0) {
-				//System.out.println("Broad : " + session_selected_broadcaster + " Port : " + vizPortNumber);
-				session_socket = new Socket(vizIPAddresss, Integer.valueOf(vizPortNumber));
-				switch (session_selected_broadcaster.toUpperCase()) {
-				case KabaddiUtil.KABADDI:
-					session_selected_scenes.add(new Scene(KabaddiUtil.SUPER_CUP_SCORE_BUG_SCENE_PATH,KabaddiUtil.FRONT_LAYER)); // Front layer
-					session_selected_scenes.add(new Scene(KabaddiUtil.SUPER_CUP_FF_SCENE_PATH,KabaddiUtil.BACK_LAYER)); // Back layer
-					session_selected_scenes.add(new Scene("",KabaddiUtil.MIDDLE_LAYER));
-					
-					session_selected_scenes.get(0).scene_load(print_writers.get(0), session_selected_broadcaster);
-					session_selected_scenes.get(1).scene_load(print_writers.get(0), session_selected_broadcaster);
-					
-					session_kabaddi = new Kabaddi();
-					session_kabaddi.scorebug = new ScoreBug();
-					
-					break;
-					
-				}
-			}
-			//System.out.println(session_selected_scenes);
 			model.addAttribute("match_files", new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY).listFiles(new FileFilter() {
 				@Override
 			    public boolean accept(File pathname) {
@@ -229,9 +151,6 @@ public class IndexController
 			model.addAttribute("session_selected_broadcaster", session_selected_broadcaster);
 			model.addAttribute("session_match", session_match);
 			model.addAttribute("session_event", session_event);
-			model.addAttribute("session_configurations", session_configurations);
-			model.addAttribute("session_socket", session_socket);
-			model.addAttribute("session_selected_scenes", session_selected_scenes);
 			
 			return "match";
 		}
@@ -375,6 +294,11 @@ public class IndexController
 			session_match.setHomeOtherSquad(KabaddiFunctions.getPlayersFromDB(kabaddiService, KabaddiUtil.HOME, session_match));
 			session_match.setAwayOtherSquad(KabaddiFunctions.getPlayersFromDB(kabaddiService, KabaddiUtil.AWAY, session_match));
 
+//			new ObjectMapper().writeValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()), 
+//					session_match);
+//			new ObjectMapper().writeValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + session_match.getMatchFileName()), 
+//					session_match);
+
 			new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()).createNewFile();
 			new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + session_match.getMatchFileName()).createNewFile();
 			
@@ -393,16 +317,15 @@ public class IndexController
 	
 	@RequestMapping(value = {"/processKabaddiProcedures"}, method={RequestMethod.GET,RequestMethod.POST})    
 	public @ResponseBody String processKabaddiProcedures(
-			@ModelAttribute("session_configurations") Configurations session_configurations,
 			@RequestParam(value = "whatToProcess", required = false, defaultValue = "") String whatToProcess,
 			@RequestParam(value = "valueToProcess", required = false, defaultValue = "") String valueToProcess)
 					throws JAXBException, IllegalAccessException, InvocationTargetException, IOException, NumberFormatException, InterruptedException, 
 						CsvException, SAXException, ParserConfigurationException
 	{	
-		System.out.println("whatToProcess = " + whatToProcess);
-		System.out.println("valueToProcess = " + valueToProcess);
+//		System.out.println("whatToProcess = " + whatToProcess);
+//		System.out.println("valueToProcess = " + valueToProcess);
 		Event this_event = new Event();
-		if(session_selected_broadcaster != null && !session_selected_broadcaster.equalsIgnoreCase(KabaddiUtil.EURO_LEAGUE)) {
+		if(session_selected_broadcaster != null) {
 			if(!whatToProcess.equalsIgnoreCase(KabaddiUtil.LOAD_TEAMS)) {
 				if(valueToProcess.contains(",")) {
 					if(session_match.getMatchFileName() == null || session_match.getMatchFileName().isEmpty()) {
@@ -419,97 +342,25 @@ public class IndexController
 			}
 		}
 		switch (whatToProcess.toUpperCase()) {
-		case "GET-CONFIG-DATA":
-			session_configurations = (Configurations)JAXBContext.newInstance(Configurations.class).createUnmarshaller().unmarshal(
-				new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.CONFIGURATIONS_DIRECTORY 
-						+ valueToProcess));
-			
-			return JSONObject.fromObject(session_configurations).toString();
 		case KabaddiUtil.LOG_STAT:
 
-			if(valueToProcess.toUpperCase().contains(KabaddiUtil.PENALTIES)) {
-				if(valueToProcess.split(",")[1].split("_")[1].toUpperCase().contains(KabaddiUtil.INCREMENT)) {
-					if(valueToProcess.split(",")[1].split("_")[0].toUpperCase().contains(KabaddiUtil.HOME)) {
-						if(valueToProcess.split(",")[1].split("_")[3].toUpperCase().contains(KabaddiUtil.HIT)) {
-							session_match.setHomePenaltiesHits(session_match.getHomePenaltiesHits() + 1);
-						}else if(valueToProcess.split(",")[1].split("_")[3].toUpperCase().contains(KabaddiUtil.MISS)) {
-							session_match.setHomePenaltiesMisses(session_match.getHomePenaltiesMisses() + 1);
-						}
-					}else if(valueToProcess.split(",")[1].split("_")[0].toUpperCase().contains(KabaddiUtil.AWAY)) {
-						if(valueToProcess.split(",")[1].split("_")[3].toUpperCase().contains(KabaddiUtil.HIT)) {
-							session_match.setAwayPenaltiesHits(session_match.getAwayPenaltiesHits() + 1);
-						}else if(valueToProcess.split(",")[1].split("_")[3].toUpperCase().contains(KabaddiUtil.MISS)) {
-							session_match.setAwayPenaltiesMisses(session_match.getAwayPenaltiesMisses() + 1);
-						}
-					}
-				}else if(valueToProcess.split(",")[1].split("_")[1].toUpperCase().contains(KabaddiUtil.DECREMENT)) {
-					if(valueToProcess.split(",")[1].split("_")[0].toUpperCase().contains(KabaddiUtil.HOME)) {
-						if(valueToProcess.split(",")[1].split("_")[3].toUpperCase().contains(KabaddiUtil.HIT)) {
-							if(session_match.getHomePenaltiesHits() > 0) {
-								session_match.setHomePenaltiesHits(session_match.getHomePenaltiesHits() - 1);
-							}
-						}else if(valueToProcess.split(",")[1].split("_")[3].toUpperCase().contains(KabaddiUtil.MISS)) {
-							if(session_match.getHomePenaltiesMisses() > 0) {
-								session_match.setHomePenaltiesMisses(session_match.getHomePenaltiesMisses() - 1);
-							}
-						}
-					}else if(valueToProcess.split(",")[1].split("_")[0].toUpperCase().contains(KabaddiUtil.AWAY)) {
-						if(valueToProcess.split(",")[1].split("_")[3].toUpperCase().contains(KabaddiUtil.HIT)) {
-							if(session_match.getAwayPenaltiesHits() > 0) {
-								session_match.setAwayPenaltiesHits(session_match.getAwayPenaltiesHits() - 1);
-							}
-						}else if(valueToProcess.split(",")[1].split("_")[3].toUpperCase().contains(KabaddiUtil.MISS)) {
-							if(session_match.getAwayPenaltiesMisses() > 0) {
-								session_match.setAwayPenaltiesMisses(session_match.getAwayPenaltiesMisses() - 1);
-							}
-						}
-					}
-				}
-			}
-			
 			JAXBContext.newInstance(Match.class).createMarshaller().marshal(session_match, 
 					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()));
 			
-			switch (session_selected_broadcaster) {
-			case KabaddiUtil.KABADDI:
-				session_kabaddi.ProcessGraphicOption(print_writers.get(0),whatToProcess, session_match, session_clock, kabaddiService, 
-						session_selected_scenes, valueToProcess);
-				break;
-			}
 			//session_i_league.ProcessGraphicOption(whatToProcess,session_match, session_clock,footballService,session_socket, session_selected_scenes, valueToProcess);
 			return JSONObject.fromObject(session_match).toString();
-			
-		case "RESET_PENALTY":
-			
-			session_match.setHomePenaltiesHits(0);
-			session_match.setHomePenaltiesMisses(0);
-			session_match.setAwayPenaltiesHits(0);
-			session_match.setAwayPenaltiesMisses(0);
-
-			JAXBContext.newInstance(Match.class).createMarshaller().marshal(session_match, 
-					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()));
-			
-			return JSONObject.fromObject(session_match).toString();
 		
-		case "NAMESUPER_GRAPHICS-OPTIONS": case "BUG_DB_GRAPHICS-OPTIONS": case "STAFF_GRAPHICS-OPTIONS": case "PROMO_GRAPHICS-OPTIONS": case "LTPROMO_GRAPHICS-OPTIONS":
-		case "SCOREBUGPROMO_GRAPHICS-OPTIONS":	case "RESULT_PROMO_GRAPHICS-OPTIONS": case "TEAMFIXTURE_GRAPHICS-OPTIONS": case "DB_GRAPHICS":
-		case "LEADERBOARD_GRAPHICS-OPTIONS": case "LT_PLAYER_STATS_GRAPHICS-OPTIONS":
-			switch (session_selected_broadcaster) {
-			case KabaddiUtil.KABADDI:
-				return session_kabaddi.ProcessGraphicOption(print_writers.get(0),whatToProcess, session_match, session_clock, 
-						kabaddiService, session_selected_scenes, valueToProcess).toString();
-			}
 		case "POPULATE_RAIDER":
 			//System.out.println("Size = " + valueToProcess.split(",").length);
 			
 			if(valueToProcess.split(",").length == 3) {
 				if(valueToProcess.split(",")[2].equalsIgnoreCase("RAIDER")) {
 					session_match.getMatchStats().add(new MatchStats(session_match.getMatchStats().size() + 1, Integer.valueOf(valueToProcess.split(",")[1]), 
-							session_match.getClock().getMatchHalves(),"RAIDER", 0, session_match.getClock().getMatchTotalSeconds(),0,"YES"));
+							session_match.getClock().getMatchHalves(),"RAIDER", 0, session_match.getClock().getMatchTotalSeconds(),0,0,0,0,0,"YES"));
 				}
 			}else if(valueToProcess.split(",").length == 2) {
 				session_match.getMatchStats().add(new MatchStats(session_match.getMatchStats().size() + 1, Integer.valueOf(valueToProcess.split(",")[1]), 
-						session_match.getClock().getMatchHalves(),"RAIDER", 0, session_match.getClock().getMatchTotalSeconds(),0,"NO"));
+						session_match.getClock().getMatchHalves(),"RAIDER", 0, session_match.getClock().getMatchTotalSeconds(),0,0,0,0,0,"NO"));
 			}
 			
 			
@@ -519,6 +370,90 @@ public class IndexController
 			JAXBContext.newInstance(Match.class).createMarshaller().marshal(session_match, 
 					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()));
 			
+			session_match.setEvents(session_event.getEvents());
+			
+			return JSONObject.fromObject(session_match).toString();
+		
+		case "RAIDER":
+			
+			total_home_points = 0;total_away_points = 0;
+			bonus_points = "";superTackel_points = "";sucess_unSuccess_points = "";
+			superRaid_points = "";allOut_points = "";touches_points = 0;
+			
+			if(Integer.valueOf(valueToProcess.split(",")[5]) == session_match.getHomeTeamId() ) {
+				total_away_points = total_away_points + 2;
+				allOut_points = KabaddiUtil.HOME;
+			}else if(Integer.valueOf(valueToProcess.split(",")[5]) == session_match.getAwayTeamId() ) {
+				total_home_points = total_home_points + 2;
+				allOut_points = KabaddiUtil.AWAY;
+			}
+			
+			if(session_match.getHomeTeamId() == Integer.valueOf(valueToProcess.split(",")[1])) {
+				if(valueToProcess.split(",")[2].equalsIgnoreCase("TRUE")) {
+					total_home_points = total_home_points + 1;
+					bonus_points = KabaddiUtil.HOME;
+				}
+				
+				if(valueToProcess.split(",")[3].equalsIgnoreCase("TRUE")) {
+					total_away_points = total_away_points + 1;
+					superTackel_points = KabaddiUtil.AWAY;
+				}
+				
+				if(Integer.valueOf(valueToProcess.split(",")[7]) > 0 ) {
+					total_home_points = total_home_points + Integer.valueOf(valueToProcess.split(",")[7]);
+				}
+				
+				if(valueToProcess.split(",")[4].equalsIgnoreCase("TRUE")) {
+					superRaid_points = KabaddiUtil.HOME;
+				}
+				
+				if(valueToProcess.split(",")[6].equalsIgnoreCase("TRUE")) {
+					total_away_points = total_away_points + 1;
+					sucess_unSuccess_points = KabaddiUtil.YES;
+				}
+				
+			}else if(session_match.getAwayTeamId() == Integer.valueOf(valueToProcess.split(",")[1])) {
+				if(valueToProcess.split(",")[2].equalsIgnoreCase("TRUE")) {
+					total_away_points = total_away_points + 1;
+					bonus_points = KabaddiUtil.AWAY;
+				}
+				
+				if(valueToProcess.split(",")[3].equalsIgnoreCase("TRUE")) {
+					total_home_points = total_home_points + 1;
+					superTackel_points = KabaddiUtil.HOME;
+				}
+				
+				if(Integer.valueOf(valueToProcess.split(",")[7]) > 0 ) {
+					total_away_points = total_away_points + Integer.valueOf(valueToProcess.split(",")[7]);
+				}
+				
+				if(valueToProcess.split(",")[4].equalsIgnoreCase("TRUE")) {
+					superRaid_points = KabaddiUtil.AWAY;
+				}
+				
+				if(valueToProcess.split(",")[6].equalsIgnoreCase("TRUE")) {
+					total_home_points = total_home_points + 1;
+					sucess_unSuccess_points = KabaddiUtil.YES;
+				}
+			}
+			
+			session_match.setHomeTeamScore(session_match.getHomeTeamScore() + total_home_points);
+			session_match.setAwayTeamScore(session_match.getAwayTeamScore() + total_away_points);
+			
+			
+			session_event.getEvents().add(new Event(session_event.getEvents().size() + 1, Integer.valueOf(valueToProcess.split(",")[1]), session_match.getClock().getMatchHalves(), 
+					bonus_points,superTackel_points, superRaid_points,allOut_points, Integer.valueOf(valueToProcess.split(",")[7]),"LOG_EVENT","RAIDER",total_home_points,
+					total_away_points));
+			
+			session_match.getMatchStats().add(new MatchStats(session_match.getMatchStats().size() + 1,0, session_match.getClock().getMatchHalves(), 
+					"POINTS",0,session_match.getClock().getMatchTotalSeconds(), 0, 0,Integer.valueOf(valueToProcess.split(",")[1]),total_home_points,total_away_points,"NO"));
+			
+			JAXBContext.newInstance(EventFile.class).createMarshaller().marshal(session_event, 
+					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + session_match.getMatchFileName()));
+			
+			JAXBContext.newInstance(Match.class).createMarshaller().marshal(session_match, 
+					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()));
+					
 			session_match.setEvents(session_event.getEvents());
 			
 			return JSONObject.fromObject(session_match).toString();
@@ -558,9 +493,9 @@ public class IndexController
 			session_event.getEvents().add(new Event(session_event.getEvents().size() + 1, 0, session_match.getClock().getMatchHalves(), 
 					0,whatToProcess, "replace", Integer.valueOf(valueToProcess.split(",")[1]),Integer.valueOf(valueToProcess.split(",")[2]),0));
 			
-			session_match.getMatchStats().add(new MatchStats(session_match.getMatchStats().size() + 1, session_match.getClock().getMatchHalves(), 
-					"REPLACE",session_match.getClock().getMatchTotalSeconds(), Integer.valueOf(valueToProcess.split(",")[1]), 
-					Integer.valueOf(valueToProcess.split(",")[2]),Integer.valueOf(valueToProcess.split(",")[2])));
+			session_match.getMatchStats().add(new MatchStats(session_match.getMatchStats().size() + 1,0, session_match.getClock().getMatchHalves(), 
+					"REPLACE",0,session_match.getClock().getMatchTotalSeconds(), Integer.valueOf(valueToProcess.split(",")[1]), 
+					Integer.valueOf(valueToProcess.split(",")[2]),Integer.valueOf(valueToProcess.split(",")[2]),0,0,"NO"));
 			
 			JAXBContext.newInstance(EventFile.class).createMarshaller().marshal(session_event, 
 					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + session_match.getMatchFileName()));
@@ -583,7 +518,7 @@ public class IndexController
 				
 				session_match.getMatchStats().add(new MatchStats(session_match.getMatchStats().size() + 1, Integer.valueOf(valueToProcess.split(",")[2]), 
 						session_match.getClock().getMatchHalves(),"POINTS", Integer.valueOf(valueToProcess.split(",")[1]), 
-						session_match.getClock().getMatchTotalSeconds(),Integer.valueOf(valueToProcess.split(",")[2]),"NO"));
+						session_match.getClock().getMatchTotalSeconds(),Integer.valueOf(valueToProcess.split(",")[2]),0,0,0,0,"NO"));
 				
 				if(session_match.getHomeTeamId() == Integer.valueOf(valueToProcess.split(",")[2])) {
 					session_match.setHomeTeamScore(session_match.getHomeTeamScore() + Integer.valueOf(valueToProcess.split(",")[1]));	
@@ -613,68 +548,6 @@ public class IndexController
 			session_match.setEvents(session_event.getEvents());
 			
 			return JSONObject.fromObject(session_match).toString();
-
-		case "HOME_GOAL":
-			
-			if(session_match.getMatchStats() == null || session_match.getMatchStats().size() <= 0) 
-				session_match.setMatchStats(new ArrayList<MatchStats>());
-			if(session_match.getEvents() == null || session_match.getEvents().size() <= 0) 
-				session_match.setEvents(new ArrayList<Event>());
-			
-			session_match.getMatchStats().add(new MatchStats(session_match.getMatchStats().size() + 1, session_match.getHomeSquad().get(0).getPlayerId(), 
-					session_match.getClock().getMatchHalves(),"Home_Goal", 1, session_match.getClock().getMatchTotalSeconds(),
-					session_match.getHomeSquad().get(0).getPlayerId(),"NO"));
-			
-			session_match.setHomeTeamScore(session_match.getHomeTeamScore() + 1);
-			
-			if(session_event.getEvents() == null || session_event.getEvents().size() <= 0) 
-				session_event.setEvents(new ArrayList<Event>());
-			
-			session_event.getEvents().add(new Event(session_event.getEvents().size() + 1, session_match.getHomeSquad().get(0).getPlayerId(), 
-					session_match.getClock().getMatchHalves(), session_match.getMatchStats().size(),whatToProcess, "Home_Goal", 0,0,1));
-
-			session_match = KabaddiFunctions.populateMatchVariables(kabaddiService, session_match);
-			
-			JAXBContext.newInstance(EventFile.class).createMarshaller().marshal(session_event, 
-					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + session_match.getMatchFileName()));
-			
-			JAXBContext.newInstance(Match.class).createMarshaller().marshal(session_match, 
-					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()));
-			
-			session_match.setEvents(session_event.getEvents());
-			
-			return JSONObject.fromObject(session_match).toString();
-			
-		case "AWAY_GOAL":
-			
-			if(session_match.getMatchStats() == null || session_match.getMatchStats().size() <= 0) 
-				session_match.setMatchStats(new ArrayList<MatchStats>());
-			if(session_match.getEvents() == null || session_match.getEvents().size() <= 0) 
-				session_match.setEvents(new ArrayList<Event>());
-			
-			session_match.getMatchStats().add(new MatchStats(session_match.getMatchStats().size() + 1, session_match.getAwaySquad().get(0).getPlayerId(), 
-					session_match.getClock().getMatchHalves(),"AWAY_GOAL", 1, session_match.getClock().getMatchTotalSeconds(),
-					session_match.getAwaySquad().get(0).getPlayerId(),"NO"));
-			
-			session_match.setAwayTeamScore(session_match.getAwayTeamScore() + 1);
-			
-			if(session_event.getEvents() == null || session_event.getEvents().size() <= 0) 
-				session_event.setEvents(new ArrayList<Event>());
-			
-			session_event.getEvents().add(new Event(session_event.getEvents().size() + 1, session_match.getAwaySquad().get(0).getPlayerId(), 
-					session_match.getClock().getMatchHalves(), session_match.getMatchStats().size(),whatToProcess, "AWAY_GOAL", 0,0,1));
-
-			session_match = KabaddiFunctions.populateMatchVariables(kabaddiService, session_match);
-			
-			JAXBContext.newInstance(EventFile.class).createMarshaller().marshal(session_event, 
-					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + session_match.getMatchFileName()));
-			
-			JAXBContext.newInstance(Match.class).createMarshaller().marshal(session_match, 
-					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()));
-		
-			session_match.setEvents(session_event.getEvents());
-			
-			return JSONObject.fromObject(session_match).toString();	
 
 		case "LOG_OVERWRITE_MATCH_SUBS":
 			//System.out.println(valueToProcess);
@@ -791,111 +664,7 @@ public class IndexController
 					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()));
 
 			return JSONObject.fromObject(session_match).toString();
-		
-		case "HOME_UNDO":
-		
-			if(session_event.getEvents() != null && 1 <= session_event.getEvents().size()) {
-				
-				for(int jUndo=1;jUndo<=1;jUndo++) {
 
-					this_event = session_event.getEvents().get(session_event.getEvents().size() - 1);
-					switch (this_event.getEventLog().toUpperCase()) {
-					case "HOME_GOAL":
-						switch (this_event.getEventType().toUpperCase()) {
-						case "HOME_GOAL":
-							this_event = session_event.getEvents().get(session_event.getEvents().size() - 1);
-							for(Player plyr : session_match.getHomeSquad()) {
-								if(plyr.getPlayerId() == this_event.getEventPlayerId()) {
-									switch (this_event.getEventType().toUpperCase()) {
-									case "HOME_GOAL":
-										session_match.setHomeTeamScore(session_match.getHomeTeamScore() - 1);
-										session_event.getEvents().remove(this_event);
-										session_match.getMatchStats().remove(session_match.getMatchStats().get(session_match.getMatchStats().size() - 1));
-										break;
-									}
-								}
-							}
-							for(Player plyr : session_match.getAwaySquad()) {
-								if(plyr.getPlayerId() == this_event.getEventPlayerId()) {
-									switch (this_event.getEventType().toUpperCase()) {
-									case "HOME_GOAL":
-										session_match.setAwayTeamScore(session_match.getAwayTeamScore() - 1);
-										session_event.getEvents().remove(this_event);
-										session_match.getMatchStats().remove(session_match.getMatchStats().get(session_match.getMatchStats().size() - 1));
-										break;
-									}
-								}
-							}
-							
-							break;
-						}
-						break;
-					}
-				}
-			}
-			
-	
-			JAXBContext.newInstance(EventFile.class).createMarshaller().marshal(session_event, 
-					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + session_match.getMatchFileName()));
-			
-			JAXBContext.newInstance(Match.class).createMarshaller().marshal(session_match, 
-					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()));
-		
-			session_match.setEvents(session_event.getEvents());
-			return JSONObject.fromObject(session_match).toString();
-			
-		case "AWAY_UNDO":
-
-			if(session_event.getEvents() != null && 1 <= session_event.getEvents().size()) {
-				
-				for(int jUndo=1;jUndo<=1;jUndo++) {
-
-					this_event = session_event.getEvents().get(session_event.getEvents().size() - 1);
-					
-					switch (this_event.getEventLog().toUpperCase()) {
-					case "AWAY_GOAL":
-						switch (this_event.getEventType().toUpperCase()) {
-						case "AWAY_GOAL":
-							this_event = session_event.getEvents().get(session_event.getEvents().size() - 1);
-							for(Player plyr : session_match.getHomeSquad()) {
-								if(plyr.getPlayerId() == this_event.getEventPlayerId()) {
-									switch (this_event.getEventType().toUpperCase()) {
-									case "AWAY_GOAL":
-										session_match.setHomeTeamScore(session_match.getHomeTeamScore() - 1);
-										session_event.getEvents().remove(this_event);
-										session_match.getMatchStats().remove(session_match.getMatchStats().get(session_match.getMatchStats().size() - 1));
-										break;
-									}
-								}
-							}
-							for(Player plyr : session_match.getAwaySquad()) {
-								if(plyr.getPlayerId() == this_event.getEventPlayerId()) {
-									switch (this_event.getEventType().toUpperCase()) {
-									case "AWAY_GOAL":
-										session_match.setAwayTeamScore(session_match.getAwayTeamScore() - 1);
-										session_event.getEvents().remove(this_event);
-										session_match.getMatchStats().remove(session_match.getMatchStats().get(session_match.getMatchStats().size() - 1));
-										break;
-									}
-								}
-							}
-							break;
-						}
-						break;
-					}
-				}
-			}
-			
-	
-			JAXBContext.newInstance(EventFile.class).createMarshaller().marshal(session_event, 
-					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + session_match.getMatchFileName()));
-			
-			JAXBContext.newInstance(Match.class).createMarshaller().marshal(session_match, 
-					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()));
-		
-			session_match.setEvents(session_event.getEvents());
-			return JSONObject.fromObject(session_match).toString();	
-			
 		case KabaddiUtil.UNDO:
 
 			if(valueToProcess.contains(",")) {
@@ -925,35 +694,12 @@ public class IndexController
 									}
 								}
 								break;
-							case KabaddiUtil.GOAL: case KabaddiUtil.OWN_GOAL: case KabaddiUtil.PENALTY: case KabaddiUtil.YELLOW: case KabaddiUtil.RED:
-							case KabaddiUtil.ASSISTS: case KabaddiUtil.SHOTS: case KabaddiUtil.SHOTS_ON_TARGET: case KabaddiUtil.OFF_SIDE: case KabaddiUtil.FOULS:
-							case KabaddiUtil.CORNERS_CONVERTED: case KabaddiUtil.CORNERS: case KabaddiUtil.SAVES:
+							case "RAIDER":
 								this_event = session_event.getEvents().get(session_event.getEvents().size() - 1);
 								session_match.getMatchStats().remove(session_match.getMatchStats().get(session_match.getMatchStats().size() - 1));
-								for(Player plyr : session_match.getHomeSquad()) {
-									if(plyr.getPlayerId() == this_event.getEventPlayerId()) {
-										switch (this_event.getEventType().toUpperCase()) {
-										case KabaddiUtil.GOAL: case KabaddiUtil.PENALTY:
-											session_match.setHomeTeamScore(session_match.getHomeTeamScore() - 1);
-											break;
-										case KabaddiUtil.OWN_GOAL: 
-											session_match.setAwayTeamScore(session_match.getAwayTeamScore() - 1);
-											break;
-										}
-									}
-								}
-								for(Player plyr : session_match.getAwaySquad()) {
-									if(plyr.getPlayerId() == this_event.getEventPlayerId()) {
-										switch (this_event.getEventType().toUpperCase()) {
-										case KabaddiUtil.GOAL: case KabaddiUtil.PENALTY:
-											session_match.setAwayTeamScore(session_match.getAwayTeamScore() - 1);
-											break;
-										case KabaddiUtil.OWN_GOAL: 
-											session_match.setHomeTeamScore(session_match.getHomeTeamScore() - 1);
-											break;
-										}
-									}
-								}
+								
+								session_match.setHomeTeamScore(session_match.getHomeTeamScore() - this_event.getTotalHomePoints());
+								session_match.setAwayTeamScore(session_match.getAwayTeamScore() - this_event.getTotalAwayPoints());
 								break;
 							}
 							break;
@@ -1003,6 +749,8 @@ public class IndexController
 
 			session_match.setEvents(session_event.getEvents());
 			return JSONObject.fromObject(session_match).toString();
+		
+			
 			
 		case KabaddiUtil.LOAD_TEAMS:
 			if(!valueToProcess.trim().isEmpty()) {
@@ -1018,23 +766,37 @@ public class IndexController
 
 		case KabaddiUtil.LOAD_MATCH: case KabaddiUtil.LOAD_SETUP:
 
-			session_match = (Match) JAXBContext.newInstance(Match.class).createUnmarshaller().unmarshal(
-					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + valueToProcess));
+			if(valueToProcess.split(",").length == 2) {
+				session_match = (Match) JAXBContext.newInstance(Match.class).createUnmarshaller().unmarshal(
+						new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + valueToProcess.split(",")[1]));
+			}else if(valueToProcess.split(",").length == 1) {
+				session_match = (Match) JAXBContext.newInstance(Match.class).createUnmarshaller().unmarshal(
+						new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + valueToProcess.split(",")[0]));
+			}
 			
 			switch (whatToProcess.toUpperCase()) {
 			case KabaddiUtil.LOAD_MATCH:
 				
-				if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + valueToProcess).exists()) {
-					session_event = (EventFile) JAXBContext.newInstance(EventFile.class).createUnmarshaller().unmarshal(
-							new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + valueToProcess));
-				} else {
-					session_event = new EventFile();
-					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + valueToProcess).createNewFile();
+				if(valueToProcess.split(",").length == 2) {
+					if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + valueToProcess.split(",")[1]).exists()) {
+						session_event = (EventFile) JAXBContext.newInstance(EventFile.class).createUnmarshaller().unmarshal(
+								new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + valueToProcess.split(",")[1]));
+					} else {
+						session_event = new EventFile();
+						new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + valueToProcess.split(",")[1]).createNewFile();
+					}
+				}else if(valueToProcess.split(",").length == 1) {
+					if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + valueToProcess.split(",")[0]).exists()) {
+						session_event = (EventFile) JAXBContext.newInstance(EventFile.class).createUnmarshaller().unmarshal(
+								new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + valueToProcess.split(",")[0]));
+					} else {
+						session_event = new EventFile();
+						new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + valueToProcess.split(",")[0]).createNewFile();
+					}
 				}
 
-				if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.CLOCK_XML).exists()) {
-					session_match.setClock((Clock) JAXBContext.newInstance(Clock.class).createUnmarshaller().unmarshal(
-							new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.CLOCK_XML)));
+				if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.CLOCK_JSON).exists()) {
+					session_match.setClock(new ObjectMapper().readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.CLOCK_JSON),Clock.class));
 				} else {
 					session_match.setClock(new Clock());
 				}
@@ -1057,27 +819,16 @@ public class IndexController
 		case "READ_CLOCK":
 			
 			if(session_match != null) {
-				if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.CLOCK_XML).exists()) {
-					session_clock = (Clock) JAXBContext.newInstance(Clock.class).createUnmarshaller().unmarshal(
-							new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.CLOCK_XML));
+				if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.CLOCK_JSON).exists()) {
+					session_clock = new ObjectMapper().readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.CLOCK_JSON),Clock.class);
 					session_match.setClock(session_clock);
-					
-					switch (session_selected_broadcaster) {
-					case KabaddiUtil.KABADDI:
-						session_kabaddi.updateScoreBug(print_writers.get(0),session_selected_scenes, session_match,kabaddiService);
-						break;
-					}
 				}
 			}
+			
 			return JSONObject.fromObject(session_match).toString();
 		
 		default:
-			switch (session_selected_broadcaster) {
-			case KabaddiUtil.KABADDI:
-				session_kabaddi.ProcessGraphicOption(print_writers.get(0),whatToProcess, session_match, session_clock, kabaddiService, 
-						session_selected_scenes, valueToProcess);
-				return JSONObject.fromObject(session_kabaddi).toString();
-			}
+			
 			return JSONObject.fromObject(session_match).toString();
 		}
 	}
