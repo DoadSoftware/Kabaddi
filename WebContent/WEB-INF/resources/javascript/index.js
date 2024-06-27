@@ -1,13 +1,11 @@
 var match_data,team_id,leaderboard,home_team,away_team,home_team_name,away_team_name;
 var isTrue = true;
 var graphics,preGraphic;
-function secondsTimeSpanToHMS(s) {
-  var h = Math.floor(s / 3600); //Get whole hours
-  s -= h * 3600;
-  var m = Math.floor(s / 60); //Get remaining minutes
-  s -= m * 60;
-  return h + ":" + (m < 10 ? '0' + m : m) + ":" + (s < 10 ? '0' + s : s); //zero padding on minutes and seconds
-} 
+function millisToMinutesAndSeconds(millis) {
+  var m = Math.floor(millis / 60000);
+  var s = ((millis % 60000) / 1000).toFixed(0);
+  return (m < 10 ? '0' + m : m) + ":" + (s < 10 ? '0' + s :s);
+}
 
 function displayMatchTime() {
 	processKabaddiProcedures('READ_CLOCK',null);
@@ -81,7 +79,7 @@ function initialiseForm(whatToProcess, dataToProcess)
 		if(match_data) {
 			if(document.getElementById('match_time_hdr')) {
 				document.getElementById('match_time_hdr').innerHTML = 'MATCH TIME : ' + 
-					secondsTimeSpanToHMS(match_data.clock.matchTotalSeconds);
+					millisToMinutesAndSeconds(match_data.clock.matchTotalMilliSeconds);
 			}
 		}
 		break;
@@ -230,7 +228,7 @@ function processUserSelection(whichInput)
 			if ($('#overwrite_match_stats_index option:selected').val() == ms.statsId) {
 				document.getElementById('overwrite_match_stats_player_id').value = ms.playerId;
 				document.getElementById('overwrite_match_stats_type').value = ms.statsType;
-				document.getElementById('overwrite_match_stats_total_seconds').value = ms.totalMatchSeconds;
+				document.getElementById('overwrite_match_stats_total_seconds').value = ms.totalMatchMilliSeconds;
 			}
 		});
 
@@ -598,7 +596,7 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 				if(match_data.clock) {
 					if(document.getElementById('match_time_hdr')) {
 						document.getElementById('match_time_hdr').innerHTML = 'MATCH TIME : ' + 
-							secondsTimeSpanToHMS(match_data.clock.matchTotalSeconds);
+							millisToMinutesAndSeconds(match_data.clock.matchTotalMilliSeconds);
 					}
 				}
 				
@@ -897,7 +895,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 				option.text = option.text + ' [' + match_data.awayTeam.teamName4 + ']';
 				//alert(match_data.awayTeam.teamName1);
 			}
-		    option.text = option.text + ' [' + ms.totalMatchSeconds + ']';
+		    option.text = option.text + ' [' + ms.totalMatchMilliSeconds + ']';
 		    select.appendChild(option);
 		});
 	    header_text = document.createElement('label');
@@ -925,7 +923,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 			option = document.createElement('input');
 			option.type = "text";
 			option.id = 'overwrite_match_stats_total_seconds';
-			option.value = ms.totalMatchSeconds;
+			option.value = ms.totalMatchMilliSeconds;
 		});
 		
 		header_text = document.createElement('label');

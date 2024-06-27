@@ -356,11 +356,11 @@ public class IndexController
 			if(valueToProcess.split(",").length == 3) {
 				if(valueToProcess.split(",")[2].equalsIgnoreCase("RAIDER")) {
 					session_match.getMatchStats().add(new MatchStats(session_match.getMatchStats().size() + 1, Integer.valueOf(valueToProcess.split(",")[1]), 
-							session_match.getClock().getMatchHalves(),"RAIDER", 0, session_match.getClock().getMatchTotalSeconds(),0,0,0,0,0,"YES"));
+							session_match.getClock().getMatchHalves(),"RAIDER", 0, session_match.getClock().getMatchTotalMilliSeconds(),0,0,0,0,0,"YES"));
 				}
 			}else if(valueToProcess.split(",").length == 2) {
 				session_match.getMatchStats().add(new MatchStats(session_match.getMatchStats().size() + 1, Integer.valueOf(valueToProcess.split(",")[1]), 
-						session_match.getClock().getMatchHalves(),"RAIDER", 0, session_match.getClock().getMatchTotalSeconds(),0,0,0,0,0,"NO"));
+						session_match.getClock().getMatchHalves(),"RAIDER", 0, session_match.getClock().getMatchTotalMilliSeconds(),0,0,0,0,0,"NO"));
 			}
 			
 			
@@ -446,7 +446,7 @@ public class IndexController
 					total_away_points));
 			
 			session_match.getMatchStats().add(new MatchStats(session_match.getMatchStats().size() + 1,0, session_match.getClock().getMatchHalves(), 
-					"POINTS",0,session_match.getClock().getMatchTotalSeconds(), 0, 0,Integer.valueOf(valueToProcess.split(",")[1]),total_home_points,total_away_points,"NO"));
+					"POINTS",0,session_match.getClock().getMatchTotalMilliSeconds(), 0, 0,Integer.valueOf(valueToProcess.split(",")[1]),total_home_points,total_away_points,"NO"));
 			
 			JAXBContext.newInstance(EventFile.class).createMarshaller().marshal(session_event, 
 					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + session_match.getMatchFileName()));
@@ -494,7 +494,7 @@ public class IndexController
 					0,whatToProcess, "replace", Integer.valueOf(valueToProcess.split(",")[1]),Integer.valueOf(valueToProcess.split(",")[2]),0));
 			
 			session_match.getMatchStats().add(new MatchStats(session_match.getMatchStats().size() + 1,0, session_match.getClock().getMatchHalves(), 
-					"REPLACE",0,session_match.getClock().getMatchTotalSeconds(), Integer.valueOf(valueToProcess.split(",")[1]), 
+					"REPLACE",0,session_match.getClock().getMatchTotalMilliSeconds(), Integer.valueOf(valueToProcess.split(",")[1]), 
 					Integer.valueOf(valueToProcess.split(",")[2]),Integer.valueOf(valueToProcess.split(",")[2]),0,0,"NO"));
 			
 			JAXBContext.newInstance(EventFile.class).createMarshaller().marshal(session_event, 
@@ -518,7 +518,7 @@ public class IndexController
 				
 				session_match.getMatchStats().add(new MatchStats(session_match.getMatchStats().size() + 1, Integer.valueOf(valueToProcess.split(",")[2]), 
 						session_match.getClock().getMatchHalves(),"POINTS", Integer.valueOf(valueToProcess.split(",")[1]), 
-						session_match.getClock().getMatchTotalSeconds(),Integer.valueOf(valueToProcess.split(",")[2]),0,0,0,0,"NO"));
+						session_match.getClock().getMatchTotalMilliSeconds(),Integer.valueOf(valueToProcess.split(",")[2]),0,0,0,0,"NO"));
 				
 				if(session_match.getHomeTeamId() == Integer.valueOf(valueToProcess.split(",")[2])) {
 					session_match.setHomeTeamScore(session_match.getHomeTeamScore() + Integer.valueOf(valueToProcess.split(",")[1]));	
@@ -623,7 +623,7 @@ public class IndexController
 					for(MatchStats ms : session_match.getMatchStats()) {
 						if(ms.getStatsId() == Integer.valueOf(valueToProcess.split(",")[1])) {
 							ms.setStatsCount(Integer.valueOf(valueToProcess.split(",")[2]));
-							ms.setTotalMatchSeconds(Long.valueOf(valueToProcess.split(",")[3]));
+							ms.setTotalMatchMilliSeconds(Long.valueOf(valueToProcess.split(",")[3]));
 						}
 						if(ms.getTeamId() == session_match.getHomeTeamId()) {
 							home_points = home_points + ms.getStatsCount();
