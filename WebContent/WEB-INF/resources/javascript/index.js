@@ -358,9 +358,9 @@ function processUserSelection(whichInput)
 			alert('Both teams cannot be same. Please choose different home and away team');
 			return false;
 		}
-		for(var tm=1;tm<=2;tm++) {
-			for(var i=1;i<7;i++) {
-				for(var j=i+1;j<=7;j++) {
+		for(var tm = 1;tm <= 2;tm++) {
+			for(var i = 1;i < 7;i++) {
+				for(var j = i+1;j <= 7;j++) {
 					if(tm == 1) {
 						if(document.getElementById('homePlayer_' + i).selectedIndex == document.getElementById('homePlayer_' + j).selectedIndex) {
 							alert(document.getElementById('homePlayer_' + i).options[
@@ -606,8 +606,10 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 						session_match = data;
 						addItemsToList('LOAD_MATCH',data);
 						addItemsToList('LOAD_EVENTS',data);
+						alert(data.api_Match.homeTeamStats.points[0].totalPoints)
 						document.getElementById('select_event_div').style.display = 'none';
 					}
+					addItemsToList('LOAD_MATCH',data);
 				}
 				match_data = data;
 				break;
@@ -700,7 +702,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 		row = tbody.insertRow(tbody.rows.length);
 		
 		max_cols = 1;
-		for(var i=0; i<=max_cols; i++) {
+		for(var i = 0; i <= max_cols; i++) {
 			
 		    option = document.createElement('input');
 		    option.type = 'text';
@@ -907,7 +909,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 		select.style = 'width:75%';
 		select.id = 'overwrite_match_stats_player_id';
 		
-		for(i=0;i<=15;i++){
+		for(i = 0;i <= 15;i++){
 			option = document.createElement('option');
 			option.value = i;
 		    option.text = 'Points - ' + i;
@@ -967,10 +969,10 @@ function addItemsToList(whatToProcess, dataToProcess)
 		
 		if (dataToProcess)
 		{
-			if(dataToProcess.homeSquad.length <=0 || dataToProcess.awaySquad.length <=0) {
-				if(dataToProcess.homeSquad.length <=0) {
+			if(dataToProcess.homeSquad.length <= 0 || dataToProcess.awaySquad.length <= 0) {
+				if(dataToProcess.homeSquad.length <= 0) {
 					alert(dataToProcess.homeTeam.teamName1 + ' has no players in the database');
-				} else if(dataToProcess.awaySquad.length <=0) {
+				} else if(dataToProcess.awaySquad.length <= 0) {
 					alert(dataToProcess.awayTeam.teamName1 + ' has no players in the database');
 				}
 				return false;
@@ -995,6 +997,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 				    text = document.createTextNode(dataToProcess.awayTeam.teamName4 + ' captain'); 
 					break;
 				}
+				th.style.fontSize = '20px';
 			    th.appendChild(text);
 			    tr.appendChild(th);
 			}
@@ -1015,7 +1018,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 				
 				row = tbody.insertRow(tbody.rows.length);
 				
-				for(var j=0; j<=3; j++) {
+				for(var j = 0; j <= 3; j++) {
 					
 					addSelect = false;
 					switch(j) {
@@ -1039,14 +1042,14 @@ function addItemsToList(whatToProcess, dataToProcess)
 						switch(j) {
 						case 0: case 2:
 						
-							if(j==0) {
+							if(j == 0) {
 								select.name = 'selectHomePlayers';
 								select.id = 'homePlayer_' + (i + 1);
-							} else if(j==2) {
+							} else if(j == 2) {
 								select.name = 'selectAwayPlayers';
 								select.id = 'awayPlayer_' + (i + 1);
 							}
-							if(j==0) {
+							if(j == 0) {
 								dataToProcess.homeSquad.forEach(function(hp,index,arr){
 									option = document.createElement('option');
 									option.value = hp.playerId;
@@ -1066,7 +1069,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 								    select.appendChild(option);
 								});
 								
-							} else if (j==2) {
+							} else if (j == 2) {
 								
 								dataToProcess.awaySquad.forEach(function(ap,index,arr){
 									option = document.createElement('option');
@@ -1092,14 +1095,14 @@ function addItemsToList(whatToProcess, dataToProcess)
 						
 						case 1: case 3:
 						
-							if(j==1) {
+							if(j == 1) {
 								select.name = 'selectHomeCaptainGoalKeeper';
 								select.id = 'homeCaptainGoalKeeper_' + (i + 1);
 							} else {
 								select.name = 'selectAwayCaptainGoalKeeper';
 								select.id = 'awayCaptainGoalKeeper_' + (i + 1);
 							}
-							for(var k=0; k<=1; k++) {
+							for(var k = 0; k <= 1; k++) {
 								option = document.createElement('option');
 								switch (k) {
 								case 0:
@@ -1139,11 +1142,13 @@ function addItemsToList(whatToProcess, dataToProcess)
 							}
 							break;
 						}
+						select.style.fontSize = '30px';
 						row.insertCell(j).appendChild(select);
 						removeSelectDuplicates(select.id);
 						$(select).select2();
 					} else {
 						select = document.createElement('label');
+						select.style.fontSize = '30px';
 						row.insertCell(j).appendChild(select);
 					}
 				}
@@ -1451,7 +1456,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 		select.id = 'select_Touches';
 		select.name = select.id;
 		
-		for(var ibound=0; ibound<=7; ibound++) 
+		for(var ibound = 0; ibound <= 7; ibound++) 
 		{
 	    	option = document.createElement('option');
 			
@@ -1510,12 +1515,12 @@ function addItemsToList(whatToProcess, dataToProcess)
 				
 		tbody = document.createElement('tbody');
 		
-		for(var iRow=0;iRow<=0;iRow++) {
+		for(var iRow = 0;iRow <= 0;iRow++) {
 			
 			row = tbody.insertRow(tbody.rows.length);
-			max_cols = 5;
+			max_cols = 4;
 			
-			for(var iCol=0;iCol<=max_cols;iCol++) {
+			for(var iCol = 0;iCol <= max_cols;iCol++) {
 				
 				cell = row.insertCell(iCol);
 				
@@ -1530,27 +1535,43 @@ function addItemsToList(whatToProcess, dataToProcess)
 					case 0:
 						option.id = 'points';
 						option.value = 'Points';
+						option.style.fontSize = '18px';
+						option.style.width = '150px';
+						option.style.height = '30px';
 						break;
 					case 1:
 						option.id = 'replace';
 						option.value = 'Replace';
+						option.style.fontSize = '18px';
+						option.style.width = '150px';
+						option.style.height = '30px';
 						break;
 					case 2:
 						option.id = 'undo';
 						option.value = 'Undo';
+						option.style.fontSize = '18px';
+						option.style.width = '150px';
+						option.style.height = '30px';
 						break;
 					case 3:
 						option.id = 'overwrite';
 						option.value = 'Overwrite';
+						option.style.fontSize = '18px';
+						option.style.width = '150px';
+						option.style.height = '30px';
 						break;
-					case 4:
+					/*case 4:
 						option.id = 'raider';
 						option.value = 'Raider';
-						break;	
-					case 5:
+						option.style.width = '120px';
+						break;	*/
+					case 4:
 						option.name = 'cancel_event_btn';
 						option.id = option.name;
 						option.value = 'Cancel';
+						option.style.fontSize = '18px';
+						option.style.width = '150px';
+						option.style.height = '30px';
 						break;	
 					}
 					
@@ -1579,7 +1600,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 						switch (option.id) {
 						case 'stats':
 					
-							for(var ibound=1; ibound<=8; ibound++) 
+							for(var ibound = 1; ibound <= 8; ibound++) 
 							{
 						    	anchor = document.createElement('a');
 							    anchor.className = 'btn btn-success';
@@ -1606,7 +1627,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 							
 						case 'overwrite': 
 							
-							for(var ibound=1; ibound<=2; ibound++) 
+							for(var ibound = 1; ibound <= 1; ibound++) 
 							{
 						    	anchor = document.createElement('a');
 							    anchor.className = 'btn btn-success';
@@ -1617,11 +1638,11 @@ function addItemsToList(whatToProcess, dataToProcess)
 								    anchor.innerText = 'Team Score';
 								    anchor.setAttribute('onclick','addItemsToList("LOAD_OVERWRITE_TEAMS_SCORE",this);');
 									break;
-								case 2:
+								/*case 2:
 								    anchor.id = 'overwrite_match_stats';
 								    anchor.innerText = 'Match Stats';
 								    anchor.setAttribute('onclick','addItemsToList("LOAD_OVERWRITE_MATCH_STATS",this);');
-									break;
+									break;*/
 								}
 							    
 							    anchor.style = 'display:block;';
@@ -1631,7 +1652,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 						
 						case 'points':
 						
-							for(var ibound=0; ibound<=15; ibound++) 
+							for(var ibound = 0; ibound <= 15; ibound++) 
 							{
 						    	anchor = document.createElement('a');
 							    anchor.className = 'btn btn-success';
@@ -1647,7 +1668,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 								
 						case 'card':
 							
-							for(var ibound=1; ibound<=2; ibound++) 
+							for(var ibound = 1; ibound <= 2; ibound++) 
 							{
 						    	anchor = document.createElement('a');
 							    anchor.className = 'btn btn-success';
@@ -1704,6 +1725,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 			header_text = document.createElement('h6');
 			header_text.id = 'match_time_hdr';
 			header_text.innerHTML = 'Match Time: 00:00:00';
+			header_text.style.fontSize = '15px';
 			row.insertCell(0).appendChild(header_text);
 			
 			if(dataToProcess.events != null && dataToProcess.events.length > 0) {
@@ -1734,182 +1756,117 @@ function addItemsToList(whatToProcess, dataToProcess)
 					}
 				}
 				header_text.innerHTML = 'Events: ' + header_text.innerHTML;
+				header_text.style.fontSize = '15px';
 				row.insertCell(1).appendChild(header_text);
 			}
 
+			table = document.createElement('table');
+			table.setAttribute('class', 'table table-bordered');
+			//table.style.border = '5px solid black';
+			
+			tbody = document.createElement('tbody');
+			row = tbody.insertRow(tbody.rows.length);
+			Select = document.createElement('label');
+			Select.innerHTML = 'MAIN FILE';
+			Select.style.fontSize = '22px';
+		    row.insertCell(0).appendChild(Select);
+			table.appendChild(tbody);
+			document.getElementById('kabaddi_div').appendChild(table);
+			
 			//Teams Score and other details
 			table = document.createElement('table');
 			table.setAttribute('class', 'table table-bordered');
-			//thead = document.createElement('thead');
+			table.style.border = '10px solid black';
 			tbody = document.createElement('tbody');
 			for(var i = 0; i < 1; i++){
 				row = tbody.insertRow(tbody.rows.length);
-				//tr = document.createElement('tr');
+				//row.style.border = '3px solid black';
 				for (var j = 0; j <= 1; j++) {
 				    anchor = document.createElement('a');
-				    /*th = document.createElement('th'); // Column
-					th.scope = 'col';*/
+				    
 				    switch (j) {
 					case 0:
 					    anchor.name = 'homeTeam';
 					    anchor.id = 'homeTeam';
 						anchor.value = dataToProcess.homeTeamId;
 						anchor.innerHTML = dataToProcess.homeTeam.teamName1 + ': ' + dataToProcess.homeTeamScore ;
-					    //th.innerHTML = dataToProcess.homeTeam.teamName1 + ': ' + dataToProcess.homeTeamScore ;
-						break;
+						anchor.style.fontSize = '30px';
+						if(dataToProcess.homeTeamScore != dataToProcess.api_Match.homeTeamScore){
+							anchor.style.color = 'red';
+						}else if(dataToProcess.homeTeamScore == dataToProcess.api_Match.homeTeamScore){
+							anchor.style.color = 'green';
+						}
+						break;	
 					case 1:
 						anchor.name = 'awayTeam';
 						anchor.id = 'awayTeam';
 						anchor.value = dataToProcess.awayTeamId;
 						anchor.innerHTML = dataToProcess.awayTeam.teamName1 + ': ' + dataToProcess.awayTeamScore ;
-						//th.innerHTML = dataToProcess.awayTeam.teamName1 + ': ' + dataToProcess.awayTeamScore ;
+						anchor.style.fontSize = '30px';
+						if(dataToProcess.awayTeamScore != dataToProcess.api_Match.awayTeamScore){
+							anchor.style.color = 'red';
+						}else if(dataToProcess.awayTeamScore == dataToProcess.api_Match.awayTeamScore){
+							anchor.style.color = 'green';
+						}
 						break;
 					}
 					anchor.setAttribute('onclick','processUserSelection(this);');
-					anchor.setAttribute('style','cursor: pointer;');
+					anchor.style.cursor = 'pointer';
 				    row.insertCell(j).appendChild(anchor);
-				    //tr.appendChild(anchor);
 				}
 			}
 			//tbody.appendChild(tr);
 			table.appendChild(tbody);
 			document.getElementById('kabaddi_div').appendChild(table);
 			
+			
+			table = document.createElement('table');
+			table.setAttribute('class', 'table table-bordered');
+			//table.style.border = '5px solid black';
 			tbody = document.createElement('tbody');
-			for(var i = 0; i <= dataToProcess.homeSquad.length - 1; i++) {
-				row = tbody.insertRow(tbody.rows.length);
-				for(var j = 0; j <= 1; j++) {
-					//anchor = document.createElement('a');
-					text = document.createElement('label');
-					switch(j){
-					case 0:
-						text.name = 'homePlayers';
-						text.id = 'homePlayer_' + dataToProcess.homeSquad[i].playerId;
-						text.value = dataToProcess.homeSquad[i].playerId;
-						text.innerHTML = dataToProcess.homeSquad[i].jersey_number + ': ' + dataToProcess.homeSquad[i].full_name ;
-						row.insertCell(j).appendChild(text);
-						break;
-					/*case 1:
-						select = document.createElement('select');
-						select.style = 'width:80%';
-						select.name = 'playerRole';
-						select.id = 'select_' + dataToProcess.homeSquad[i].playerId + '_player_job';
-						select.className = 'player_role_dropsowns';
-						for(var k=0; k<=1; k++) {
-								option = document.createElement('option');
-								switch (k) {
-								case 0:
-									option.value = '';
-								    option.text = '';
-									break;
-								case 1:
-									option.value = 'raider';
-								    option.text = 'Raider';
-									break;
-								}
-							    select.appendChild(option);
-							}
-						select.setAttribute('onchange','processUserSelection(this);');
-						row.insertCell(j).appendChild(select);
-						break;*/
-					case 1:
-						text.name = 'awayPlayers';
-						text.id = 'awayPlayer_' + dataToProcess.awaySquad[i].playerId;
-						text.value = dataToProcess.awaySquad[i].playerId;
-						text.innerHTML = dataToProcess.awaySquad[i].jersey_number + ': ' + dataToProcess.awaySquad[i].full_name ;
-						row.insertCell(j).appendChild(text);
-						break;
-					/*case 3:
-						select = document.createElement('select');
-						select.style = 'width:80%';
-						select.name = 'playerRole';
-						select.id = 'select_' + dataToProcess.awaySquad[i].playerId + '_player_job';
-						select.className = 'player_role_dropsowns';
-						for(var k=0; k<=1; k++) {
-								option = document.createElement('option');
-								switch (k) {
-								case 0:
-									option.value = '';
-								    option.text = '';
-									break;
-								case 1:
-									option.value = 'raider';
-								    option.text = 'Raider';
-									break;
-								}
-							    select.appendChild(option);
-							}
-						select.setAttribute('onchange','processUserSelection(this);');
-						row.insertCell(j).appendChild(select);
-						break;*/
-					}
-					
-					text.setAttribute('style','cursor: pointer;');
-					//row.insertCell(j).appendChild(text);
-				}
-			}				
 			row = tbody.insertRow(tbody.rows.length);
-			header_text = document.createElement('header');
-			header_text.innerHTML = 'Substitutes';
-			row.insertCell(0).appendChild(header_text);
-			
-			max_cols = dataToProcess.homeSubstitutes.length;
-			if(dataToProcess.homeSubstitutes.length < dataToProcess.awaySubstitutes.length) {
-				max_cols = dataToProcess.awaySubstitutes.length;
-			}
-			
-			for(var i = 0; i <= max_cols-1; i++) {
-				
-				row = tbody.insertRow(tbody.rows.length);
-				
-				for(var j = 0; j <= 1; j++) {
-					
-					addSelect = false;
-					
-					switch(j) {
-					case 0:
-						if(i <= parseInt(dataToProcess.homeSubstitutes.length - 1)) {
-							addSelect = true;
-						}
-						break;
-					case 1:
-						if(i <= parseInt(dataToProcess.awaySubstitutes.length - 1)) {
-							addSelect = true;
-						}
-						break;
-					}
-
-					text = document.createElement('label');
-					
-					if(addSelect == true) {
-					
-						switch(j){
-						case 0:
-							text.name = 'homeSubstitutes';
-							text.id = 'homeSubstitute_' + dataToProcess.homeSubstitutes[i].playerId;
-							text.value = dataToProcess.homeSubstitutes[i].playerId;
-							text.innerHTML = dataToProcess.homeSubstitutes[i].jersey_number + ': ' + dataToProcess.homeSubstitutes[i].full_name;
-							break;
-							
-						case 1:
-							text.name = 'awaySubstitutes';
-							text.id = 'awaySubstitute_' + dataToProcess.awaySubstitutes[i].playerId;
-							text.value = dataToProcess.awaySubstitutes[i].playerId;
-							text.innerHTML = dataToProcess.awaySubstitutes[i].jersey_number + ': ' + dataToProcess.awaySubstitutes[i].full_name;
-							break;
-						}
-						text.setAttribute('style','cursor: pointer;');
-					
-					}	
-				
-					row.insertCell(j).appendChild(text);
-				
-				}
-			}				
-
+			Select = document.createElement('label');
+			Select.innerHTML = 'API';
+			Select.style.fontSize = '22px';
+		    row.insertCell(0).appendChild(Select);
 			table.appendChild(tbody);
 			document.getElementById('kabaddi_div').appendChild(table);
 			
+			
+			
+			// API SCORES
+			table = document.createElement('table');
+			table.setAttribute('class', 'table table-bordered');
+			table.style.border = '10px solid black';
+			tbody = document.createElement('tbody');
+			for(var i = 0; i < 1; i++){
+				row = tbody.insertRow(tbody.rows.length);
+				for (var j = 0; j <= 1; j++) {
+				    Select = document.createElement('label');
+				    switch (j) {
+					case 0:
+					    Select.name = 'apihomeTeam';
+					    Select.id = 'apihomeTeam';
+						Select.value = dataToProcess.homeTeamId;
+						Select.innerHTML = dataToProcess.homeTeam.teamName1 + ': ' + dataToProcess.api_Match.homeTeamScore;
+						Select.style.fontSize = '30px';
+						break;
+					case 1:
+						Select.name = 'apiawayTeam';
+						Select.id = 'apiawayTeam';
+						Select.value = dataToProcess.awayTeamId;
+						Select.innerHTML = dataToProcess.awayTeam.teamName1 + ': ' + dataToProcess.api_Match.awayTeamScore;
+						Select.style.fontSize = '30px';
+						break;	
+					}
+					Select.setAttribute('onclick','processUserSelection(this);');
+				    row.insertCell(j).appendChild(Select);
+				}
+			}
+			
+			
+			table.appendChild(tbody);
+			document.getElementById('kabaddi_div').appendChild(table);			
 		}
 		break;
 	}

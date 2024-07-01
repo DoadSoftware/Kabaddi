@@ -88,7 +88,7 @@
 <body onload="afterPageLoad('MATCH');">
 <form:form name="kabaddi_form" autocomplete="off" action="match" method="POST" 
 	modelAttribute="session_match" enctype="multipart/form-data">
-<div class="content py-5" style="background-color: #EAE8FF; color: #2E008B">
+<div class="content py-5" style="background-color: #A7E3E8; color: #2E008B; width: 100vw; height: 100vh;">
   <div class="container">
 	<div class="row">
 	 <div class="col-md-8 offset-md-2">
@@ -104,21 +104,21 @@
 			  <div class="panel-group" id="match_configuration">
 			    <div class="panel panel-default">
 			      <div class="panel-heading">
-			        <h5 class="panel-title">
+			        <h5 style="font-size: 18px;" class="panel-title">
 			          <a data-toggle="collapse" data-parent="#match_configuration" href="#load_setup_match">Configuration</a>
 			        </h5>
 			      </div>
 			      <div id="load_setup_match" class="panel-collapse collapse">
 					<div class="panel-body">
-					    <div class="col-sm-4 col-md-4">
+					    <div style="font-size: 18px;" class="col-sm-4 col-md-4">
 <!-- 						    <button style="background-color:#2E008B;color:#FEFEFE;display:none;" class="btn btn-sm" type="button"
 						  		name="open_clock_btn" id="open_clock_btn" 
 						  		onclick="window.open('clock','_blank')">Open Clock</button> -->
-						    <button style="background-color:#2E008B;color:#FEFEFE;" class="btn btn-sm" type="button"
+						    <button style="background-color:#2E008B;color:#FEFEFE; font-size: 18px;" class="btn btn-sm" type="button"
 						  		name="setup_match_btn" id="setup_match_btn" onclick="processUserSelection(this)">
 						  		<i class="fas fa-tools"></i> Setup Match</button>
 						 </div>
-					    <div class="col-sm-8 col-md-8">
+					    <div style="font-size: 18px;" class="col-sm-8 col-md-8">
 						    <label for="select_kabaddi_matches" class="col-sm-5 col-form-label text-left">Select Kabaddi Match</label>
 						      <select id="select_kabaddi_matches" name="select_kabaddi_matches" 
 						      		class="browser-default custom-select custom-select-sm">
@@ -126,7 +126,7 @@
 							          <option value="${match.name}">${match.name}</option>
 									</c:forEach>
 						      </select>
-						    <button style="background-color:#2E008B;color:#FEFEFE;" class="btn btn-sm" type="button"
+						    <button style="background-color:#2E008B;color:#FEFEFE; font-size: 18px;" class="btn btn-sm" type="button"
 						  		name="load_match_btn" id="load_match_btn" onclick="processUserSelection(this)">
 						  		<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display:none"></span>
 						  		<i class="fas fa-download"></i> Load Match</button>
@@ -143,6 +143,9 @@
          </div>
        </div>
     </div>
+  </div>
+  <div style="display:flex;justify-content: center; align-items:center;margin-top:200px;background-size: cover;">
+	<img class="pull-right img-responsive" src="<c:url value="/resources/Images/Idents.jpg"/>" alt="DOAD Logo">
   </div>
  </div>
  <input type="hidden" id="selected_player_id" name="selected_player_id"></input>

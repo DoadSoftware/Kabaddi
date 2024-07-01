@@ -30,17 +30,17 @@
          <div class="card card-outline-secondary">
            <div class="card-header">
              <h3 class="mb-0">Setup</h3>
-             <h6>${licence_expiry_message}</h6>
+             <h6 style="font-size: 18px;">${licence_expiry_message}</h6>
            </div>
           <div class="card-body">
 	         <div class="form-group row row-bottom-margin ml-2" style="margin-bottom:5px;">
-			    <button style="background-color:#2E008B;color:#FEFEFE;" class="btn btn-sm" type="button"
+			    <button style="background-color:#2E008B;color:#FEFEFE; font-size: 18px;" class="btn btn-sm" type="button"
 			  		name="cancel_match_setup_btn" id="cancel_match_setup_btn" onclick="processUserSelection(this)">
 		  		<i class="fas fa-window-close"></i> Back</button>
 	         </div>
-			  <div class="form-group row row-bottom-margin ml-2" style="margin-bottom:5px;">
+			  <div class="form-group row row-bottom-margin ml-2" style="margin-bottom:5px; font-size: 18px;">
 			    <label for="select_existing_kabaddi_matches" class="col-sm-4 col-form-label text-left">Select Kabaddi Match 
-			    	<i class="fas fa-asterisk fa-sm text-danger" style="font-size: 7px;"></i></label>
+			    	<i class="fas fa-asterisk fa-sm text-danger" style="font-size: 18px;"></i></label>
 			    <div class="col-sm-6 col-md-6">
 			      <select id="select_existing_kabaddi_matches" name="select_existing_kabaddi_matches" class="browser-default custom-select custom-select-sm"
 			      		onchange="processUserSelection(this)">
@@ -51,28 +51,28 @@
 			      </select>
 			    </div>
 			  </div>
-			  <div id="matchFileName_div" class="form-group row row-bottom-margin ml-2" style="margin-bottom:5px;">
+			  <div id="matchFileName_div" class="form-group row row-bottom-margin ml-2" style="margin-bottom:5px; font-size: 18px;">
 			    <label for="matchFileName" class="col-sm-4 col-form-label text-left">Match Filename <i class="fas fa-asterisk fa-sm text-danger" style="font-size: 7px;"></i></label>
 			    <div class="col-sm-6 col-md-6">
 		             <input type="text" id="matchFileName" name="matchFileName" class="form-control form-control-sm floatlabel" onblur="processUserSelection(this);"></input>
 		              <label id="matchFileName-validation" style="color:red; display: none;"></label> 
 			    </div>
 			  </div>
-			  <div id="tournament_div" class="form-group row row-bottom-margin ml-2" style="margin-bottom:5px;">
+			  <div id="tournament_div" class="form-group row row-bottom-margin ml-2" style="margin-bottom:5px; font-size: 18px;">
 			    <label for="tournament" class="col-sm-4 col-form-label text-left">Tournament/Series Name <i class="fas fa-asterisk fa-sm text-danger" style="font-size: 7px;"></i></label>
 			    <div class="col-sm-6 col-md-6">
 		             <input type="text" id="tournament" name="tournament" class="form-control form-control-sm floatlabel" 
 		             	onblur="processUserSelection(this);"></input>
 			    </div>
 			  </div>
-			  <div id="matchIdent_div" class="form-group row row-bottom-margin ml-2" style="margin-bottom:5px;">
+			  <div id="matchIdent_div" class="form-group row row-bottom-margin ml-2" style="margin-bottom:5px; font-size: 18px;">
 			    <label for="matchIdent" class="col-sm-4 col-form-label text-left">Match Ident <i class="fas fa-asterisk fa-sm text-danger" style="font-size: 7px;"></i></label>
 			    <div class="col-sm-6 col-md-6">
 		             <input type="text" id="matchIdent" name="matchIdent" 
 		             	class="form-control form-control-sm floatlabel" onblur="processUserSelection(this);"></input>
 			    </div>
 			  </div>
-			  <div class="form-group row row-bottom-margin ml-2" style="margin-bottom:5px;">
+			  <div class="form-group row row-bottom-margin ml-2" style="margin-bottom:5px; font-size: 18px;">
 			    <label for="groundId" class="col-sm-4 col-form-label text-left">Select Ground 
 			    	<i class="fas fa-asterisk fa-sm text-danger" style="font-size: 7px;"></i></label>
 			    <div class="col-sm-6 col-md-6">
@@ -84,7 +84,7 @@
 			      </select>
 			    </div>
 			  </div>
-				  <div style="margin-bottom:5px;">
+				  <div style="margin-bottom:5px; font-size: 18px;">
 					<div class="row">
 					  <div class="col-6 col-sm-3">
 					    <label for="homeSubstitutesPerTeam" class="col-form-label text-left">Home Subs</label>
@@ -104,7 +104,7 @@
 					  </div>
 					</div>
 				  </div>
-			  	<table class="table table-striped table-bordered"> 
+			  	<table style="font-size: 18px;" class="table table-striped table-bordered"> 
 				  <thead>
 			        <tr>
 			        	<th>Select HOME Team Jersey Color: 
@@ -131,7 +131,7 @@
 				    </tr>
 				  </thead>
 				</table>
-	        	<table class="table table-striped table-bordered"> 
+	        	<table style="font-size: 18px;" class="table table-striped table-bordered"> 
 				  <thead>
 			        <tr>
 			        	<th>Select HOME Team: 
@@ -156,7 +156,7 @@
 					      </select>
 			        	</th>
 			        	<th>
-						    <button style="background-color:#2E008B;color:#FEFEFE;" class="btn btn-sm" type="button"
+						    <button style="background-color:#2E008B;color:#FEFEFE; font-size: 18px;" class="btn btn-sm" type="button"
 						  		name="load_default_team_btn" id="load_default_team_btn" onclick="processUserSelection(this)">
 					  		<i class="fas fa-download"></i> Load Teams</button>
 			        	</th>
@@ -165,11 +165,11 @@
 				</table>
 			  <div id="team_selection_div" class="text-center" style="display:none;">
 	         </div>
-	         <div id="save_match_div" class="form-group row row-bottom-margin ml-2" style="margin-bottom:5px;display:none;">
-			    <button style="background-color:#2E008B;color:#FEFEFE;" class="btn btn-sm" type="button"
+	         <div id="save_match_div" class="form-group row row-bottom-margin ml-2" style="margin-bottom:5px; font-size: 18px; display:none;">
+			    <button style="background-color:#2E008B;color:#FEFEFE; font-size: 18px;" class="btn btn-sm" type="button"
 			  		name="save_match_btn" id="save_match_btn" onclick="processUserSelection(this)">
 		  		<i class="fas fa-download"></i> Save Match</button>
-			    <button style="background-color:#2E008B;color:#FEFEFE;" class="btn btn-sm" type="button"
+			    <button style="background-color:#2E008B;color:#FEFEFE; font-size: 18px;" class="btn btn-sm" type="button"
 			  		name="reset_match_btn" id="reset_match_btn" onclick="processUserSelection(this)">
 		  		<i class="fas fa-window-close"></i> Reset Match</button>
 	         </div>

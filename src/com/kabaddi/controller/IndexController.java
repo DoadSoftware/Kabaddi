@@ -31,6 +31,7 @@ import org.xml.sax.SAXException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kabaddi.broadcaster.Kabaddi;
 import com.kabaddi.containers.Scene;
+import com.kabaddi.model.Api_Match;
 import com.kabaddi.model.Clock;
 import com.kabaddi.model.Event;
 import com.kabaddi.model.EventFile;
@@ -322,8 +323,8 @@ public class IndexController
 					throws JAXBException, IllegalAccessException, InvocationTargetException, IOException, NumberFormatException, InterruptedException, 
 						CsvException, SAXException, ParserConfigurationException
 	{	
-//		System.out.println("whatToProcess = " + whatToProcess);
-//		System.out.println("valueToProcess = " + valueToProcess);
+		System.out.println("whatToProcess = " + whatToProcess);
+		System.out.println("valueToProcess = " + valueToProcess);
 		Event this_event = new Event();
 		if(session_selected_broadcaster != null) {
 			if(!whatToProcess.equalsIgnoreCase(KabaddiUtil.LOAD_TEAMS)) {
@@ -491,7 +492,7 @@ public class IndexController
 			}
 			
 			session_event.getEvents().add(new Event(session_event.getEvents().size() + 1, 0, session_match.getClock().getMatchHalves(), 
-					0,whatToProcess, "replace", Integer.valueOf(valueToProcess.split(",")[1]),Integer.valueOf(valueToProcess.split(",")[2]),0));
+					0,whatToProcess, "replace", Integer.valueOf(valueToProcess.split(",")[1]),Integer.valueOf(valueToProcess.split(",")[2]),0,0));
 			
 			session_match.getMatchStats().add(new MatchStats(session_match.getMatchStats().size() + 1,0, session_match.getClock().getMatchHalves(), 
 					"REPLACE",0,session_match.getClock().getMatchTotalMilliSeconds(), Integer.valueOf(valueToProcess.split(",")[1]), 
@@ -531,9 +532,9 @@ public class IndexController
 				if(session_event.getEvents() == null || session_event.getEvents().size() <= 0) 
 					session_event.setEvents(new ArrayList<Event>());
 				
-				session_event.getEvents().add(new Event(session_event.getEvents().size() + 1, Integer.valueOf(valueToProcess.split(",")[2]), 
+				session_event.getEvents().add(new Event(session_event.getEvents().size() + 1, 0, 
 						session_match.getClock().getMatchHalves(), session_match.getMatchStats().size(),whatToProcess, "POINTS", 0,0,
-						Integer.valueOf(valueToProcess.split(",")[1])));
+						Integer.valueOf(valueToProcess.split(",")[1]),Integer.valueOf(valueToProcess.split(",")[2])));
 				
 			}
 
@@ -735,6 +736,7 @@ public class IndexController
 							}
 							break;
 						}
+						session_match.getMatchStats().remove(session_match.getMatchStats().get(session_match.getMatchStats().size() - 1));
 						session_event.getEvents().remove(this_event);
 					}
 				}
@@ -800,6 +802,11 @@ public class IndexController
 				} else {
 					session_match.setClock(new Clock());
 				}
+				
+				if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + "3496-in-match" + KabaddiUtil.JSON_EXTENSION).exists()) {
+					session_match.setApi_Match(new ObjectMapper().readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + "3496-in-match" 
+							+ KabaddiUtil.JSON_EXTENSION), Api_Match.class));
+				}
 				break;
 				
 			}
@@ -823,6 +830,13 @@ public class IndexController
 					session_clock = new ObjectMapper().readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.CLOCK_JSON),Clock.class);
 					session_match.setClock(session_clock);
 				}
+				
+				if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + "3496-in-match" + KabaddiUtil.JSON_EXTENSION).exists()) {
+					session_match.setApi_Match(new ObjectMapper().readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + "3496-in-match" 
+							+ KabaddiUtil.JSON_EXTENSION), Api_Match.class));
+				}
+				
+				System.out.println("data = " + session_match.getApi_Match().getHomeTeamStats().getPoints().get(0).getTotalPoints());
 			}
 			
 			return JSONObject.fromObject(session_match).toString();
