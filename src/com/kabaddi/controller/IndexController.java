@@ -28,7 +28,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.xml.sax.SAXException;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.kabaddi.broadcaster.Kabaddi;
 import com.kabaddi.containers.Scene;
 import com.kabaddi.model.Api_Match;
@@ -61,6 +63,7 @@ public class IndexController
 	public static String session_selected_broadcaster;
 	public static Kabaddi session_kabaddi;
 	public static List<Scene> session_selected_scenes;
+	public static long last_match_time_stamp = 0;
 	
 	public static int total_home_points = 0,total_away_points = 0,touches_points = 0;
 	
@@ -148,6 +151,9 @@ public class IndexController
 				session_match.setMatchStats(new ArrayList<MatchStats>());
 			if(session_match.getClock() == null) 
 				session_match.setClock(new Clock());
+			
+			last_match_time_stamp = new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() + 
+            		"-in-match" + KabaddiUtil.JSON_EXTENSION).lastModified();
 			
 			model.addAttribute("session_selected_broadcaster", session_selected_broadcaster);
 			model.addAttribute("session_match", session_match);
@@ -803,8 +809,8 @@ public class IndexController
 					session_match.setClock(new Clock());
 				}
 				
-				if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + "3496-in-match" + KabaddiUtil.JSON_EXTENSION).exists()) {
-					session_match.setApi_Match(new ObjectMapper().readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + "3496-in-match" 
+				if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() + "-in-match" + KabaddiUtil.JSON_EXTENSION).exists()) {
+					session_match.setApi_Match(new ObjectMapper().readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() + "-in-match" 
 							+ KabaddiUtil.JSON_EXTENSION), Api_Match.class));
 				}
 				break;
@@ -831,12 +837,40 @@ public class IndexController
 					session_match.setClock(session_clock);
 				}
 				
-				if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + "3496-in-match" + KabaddiUtil.JSON_EXTENSION).exists()) {
-					session_match.setApi_Match(new ObjectMapper().readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + "3496-in-match" 
-							+ KabaddiUtil.JSON_EXTENSION), Api_Match.class));
-				}
+				String filePath = KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY 
+                        + session_match.getMatchId() + "-in-match" + KabaddiUtil.JSON_EXTENSION;
+			      File file = new File(filePath);
+			
+			      if (file.exists() && file.length() > 0) {
+			          try {
+			              Api_Match apiMatch = new ObjectMapper().readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() + "-in-match" 
+									+ KabaddiUtil.JSON_EXTENSION), Api_Match.class);
+			              session_match.setApi_Match(apiMatch);
+			          } catch (JsonMappingException e) {
+			              System.out.println("Error: JSON Mapping Exception occurred.");
+			              System.out.println("Location: " + e.getLocation());
+			              System.out.println("Original Message: " + e.getOriginalMessage());
+			              e.printStackTrace();
+			          } catch (IOException e) {
+			              e.printStackTrace();
+			          }
+			      } else {
+			          System.out.println("Error: The file does not exist or is empty: " + filePath);
+			      }
+//				if(last_match_time_stamp != new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() + 
+//                		"-in-match" + KabaddiUtil.JSON_EXTENSION).lastModified()) {
+//					
+//					if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() + 
+//	                		"-in-match" + KabaddiUtil.JSON_EXTENSION).exists()) {
+//						session_match.setApi_Match(new ObjectMapper().readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() + "-in-match" 
+//								+ KabaddiUtil.JSON_EXTENSION), Api_Match.class));
+//					}
+//					
+//					last_match_time_stamp = new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() + 
+//	                		"-in-match" + KabaddiUtil.JSON_EXTENSION).lastModified();
+//				}
 				
-				System.out.println("data = " + session_match.getApi_Match().getHomeTeamStats().getPoints().get(0).getTotalPoints());
+//				System.out.println("data = " + session_match.getApi_Match().getHomeTeamStats().getPoints().get(0).getTotalPoints());
 			}
 			
 			return JSONObject.fromObject(session_match).toString();

@@ -72,6 +72,13 @@
 		             	class="form-control form-control-sm floatlabel" onblur="processUserSelection(this);"></input>
 			    </div>
 			  </div>
+			  <div id="matchId_div" class="form-group row row-bottom-margin ml-2" style="margin-bottom:5px; font-size: 18px;">
+			    <label for="matchId" class="col-sm-4 col-form-label text-left">Match Id <i class="fas fa-asterisk fa-sm text-danger" style="font-size: 7px;"></i></label>
+			    <div class="col-sm-6 col-md-6">
+		             <input type="text" id="matchId" name="matchId" 
+		             	class="form-control form-control-sm floatlabel" onblur="processUserSelection(this);"></input>
+			    </div>
+			  </div>
 			  <div class="form-group row row-bottom-margin ml-2" style="margin-bottom:5px; font-size: 18px;">
 			    <label for="groundId" class="col-sm-4 col-form-label text-left">Select Ground 
 			    	<i class="fas fa-asterisk fa-sm text-danger" style="font-size: 7px;"></i></label>

@@ -106,6 +106,7 @@ function initialiseForm(whatToProcess, dataToProcess)
 			document.getElementById('matchFileName').value = dataToProcess.matchFileName;
 			document.getElementById('tournament').value = dataToProcess.tournament;
 			document.getElementById('matchIdent').value = dataToProcess.matchIdent;
+			document.getElementById('matchId').value = dataToProcess.matchId;
 			document.getElementById('groundId').value = dataToProcess.groundId;
 			document.getElementById('homeSubstitutesPerTeam').value = dataToProcess.homeSubstitutesPerTeam;
 			document.getElementById('awaySubstitutesPerTeam').value = dataToProcess.awaySubstitutesPerTeam;
@@ -631,7 +632,7 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 	        	case 'LOAD_MATCH':
 					document.getElementById('kabaddi_div').style.display = '';
 					document.getElementById('select_event_div').style.display = 'none';
-					setInterval(displayMatchTime, 500);
+					setInterval(displayMatchTime, 2000);
 					break;
 				}
         		break;
