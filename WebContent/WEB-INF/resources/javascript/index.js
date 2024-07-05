@@ -80,6 +80,7 @@ function initialiseForm(whatToProcess, dataToProcess)
 			if(document.getElementById('match_time_hdr')) {
 				document.getElementById('match_time_hdr').innerHTML = 'MATCH TIME : ' + 
 					millisToMinutesAndSeconds(match_data.clock.matchTotalMilliSeconds);
+					alert(millisToMinutesAndSeconds(match_data.clock.matchTotalMilliSeconds))
 			}
 		}
 		break;
@@ -594,12 +595,6 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 				//initialiseForm('UPDATE-CONFIG',data);
 				//break;
 			case 'READ_CLOCK':
-				if(match_data.clock) {
-					if(document.getElementById('match_time_hdr')) {
-						document.getElementById('match_time_hdr').innerHTML = 'MATCH TIME : ' + 
-							millisToMinutesAndSeconds(match_data.clock.matchTotalMilliSeconds);
-					}
-				}
 				
 				if(data){
 					if($('#matchFileTimeStamp').val() != data.matchFileTimeStamp) {
@@ -607,10 +602,17 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 						session_match = data;
 						addItemsToList('LOAD_MATCH',data);
 						addItemsToList('LOAD_EVENTS',data);
-						alert(data.api_Match.homeTeamStats.points[0].totalPoints)
+						//alert(data.api_Match.homeTeamStats.points[0].totalPoints)
 						document.getElementById('select_event_div').style.display = 'none';
 					}
 					addItemsToList('LOAD_MATCH',data);
+					
+					if(match_data.clock) {
+						if(document.getElementById('match_time_hdr')) {
+							document.getElementById('match_time_hdr').innerHTML = 'MATCH TIME : ' + 
+								millisToMinutesAndSeconds(match_data.clock.matchTotalMilliSeconds);
+						}
+					}
 				}
 				match_data = data;
 				break;
@@ -649,7 +651,8 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 }
 function addItemsToList(whatToProcess, dataToProcess)
 {
-	var max_cols,div,linkDiv,anchor,row,cell,header_text,select,option,tr,th,thead,text,table,tbody,playerName,api_value_home,api_value_away,teamName;
+	var max_cols,div,linkDiv,anchor,row,cell,header_text,select,option,tr,th,thead,text,table,
+		tbody,playerName,api_value_home,api_value_away,teamName;
 	var cellCount = 0;
 	var addSelect = false;
 	
@@ -1792,11 +1795,16 @@ function addItemsToList(whatToProcess, dataToProcess)
 						anchor.value = dataToProcess.homeTeamId;
 						anchor.innerHTML = dataToProcess.homeTeam.teamName1 + ': ' + dataToProcess.homeTeamScore ;
 						anchor.style.fontSize = '30px';
-						if(dataToProcess.homeTeamScore != dataToProcess.api_Match.homeTeamScore){
-							anchor.style.color = 'red';
-						}else if(dataToProcess.homeTeamScore == dataToProcess.api_Match.homeTeamScore){
-							anchor.style.color = 'green';
+						
+						if(dataToProcess.homeTeamScore !== null && dataToProcess.homeTeamScore !== undefined && dataToProcess.api_Match.homeTeamScore !== null 
+								 && dataToProcess.api_Match.homeTeamScore !== undefined){
+							if(dataToProcess.homeTeamScore != dataToProcess.api_Match.homeTeamScore){
+								anchor.style.color = 'red';
+							}else if(dataToProcess.homeTeamScore == dataToProcess.api_Match.homeTeamScore){
+								anchor.style.color = 'green';
+							}
 						}
+						
 						break;	
 					case 1:
 						anchor.name = 'awayTeam';
@@ -1804,11 +1812,15 @@ function addItemsToList(whatToProcess, dataToProcess)
 						anchor.value = dataToProcess.awayTeamId;
 						anchor.innerHTML = dataToProcess.awayTeam.teamName1 + ': ' + dataToProcess.awayTeamScore ;
 						anchor.style.fontSize = '30px';
-						if(dataToProcess.awayTeamScore != dataToProcess.api_Match.awayTeamScore){
-							anchor.style.color = 'red';
-						}else if(dataToProcess.awayTeamScore == dataToProcess.api_Match.awayTeamScore){
-							anchor.style.color = 'green';
+						if(dataToProcess.awayTeamScore !== null && dataToProcess.awayTeamScore !== undefined && dataToProcess.api_Match.awayTeamScore !== null 
+								 && dataToProcess.api_Match.awayTeamScore !== undefined){
+							if(dataToProcess.awayTeamScore != dataToProcess.api_Match.awayTeamScore){
+								anchor.style.color = 'red';
+							}else if(dataToProcess.awayTeamScore == dataToProcess.api_Match.awayTeamScore){
+								anchor.style.color = 'green';
+							}
 						}
+						
 						break;
 					}
 					anchor.setAttribute('onclick','processUserSelection(this);');

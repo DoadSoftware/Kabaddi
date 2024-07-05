@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.xml.sax.SAXException;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
@@ -685,7 +686,7 @@ public class IndexController
 							switch (this_event.getEventType().toUpperCase()) {
 							case "POINTS":
 								this_event = session_event.getEvents().get(session_event.getEvents().size() - 1);
-								session_match.getMatchStats().remove(session_match.getMatchStats().get(session_match.getMatchStats().size() - 1));
+								//session_match.getMatchStats().remove(session_match.getMatchStats().get(session_match.getMatchStats().size() - 1));
 								if(session_match.getHomeTeamId() == this_event.getEventTeamId()) {
 									switch (this_event.getEventType().toUpperCase()) {
 									case "POINTS":
@@ -703,7 +704,7 @@ public class IndexController
 								break;
 							case "RAIDER":
 								this_event = session_event.getEvents().get(session_event.getEvents().size() - 1);
-								session_match.getMatchStats().remove(session_match.getMatchStats().get(session_match.getMatchStats().size() - 1));
+								//session_match.getMatchStats().remove(session_match.getMatchStats().get(session_match.getMatchStats().size() - 1));
 								
 								session_match.setHomeTeamScore(session_match.getHomeTeamScore() - this_event.getTotalHomePoints());
 								session_match.setAwayTeamScore(session_match.getAwayTeamScore() - this_event.getTotalAwayPoints());
@@ -809,10 +810,40 @@ public class IndexController
 					session_match.setClock(new Clock());
 				}
 				
-				if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() + "-in-match" + KabaddiUtil.JSON_EXTENSION).exists()) {
-					session_match.setApi_Match(new ObjectMapper().readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() + "-in-match" 
-							+ KabaddiUtil.JSON_EXTENSION), Api_Match.class));
-				}
+				ObjectMapper objectMapper = new ObjectMapper();
+				
+				  String filePath = KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY 
+                        + session_match.getMatchId() + "-in-match" + KabaddiUtil.JSON_EXTENSION;
+			      File file = new File(filePath);
+			
+			      if (file.exists() && file.length() > 0) {
+			          try {
+//			              Api_Match apiMatch = new ObjectMapper().readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() + "-in-match" 
+//									+ KabaddiUtil.JSON_EXTENSION), Api_Match.class);
+//			              session_match.setApi_Match(apiMatch);
+			        	  Api_Match apiMatch = objectMapper.readValue(file, Api_Match.class);
+			              session_match.setApi_Match(apiMatch);
+			          } catch (MismatchedInputException e) {
+			                System.out.println("Error: No content to map due to end-of-input.");
+			                e.printStackTrace();
+			            } catch (JsonParseException e) {
+			                System.out.println("Error: JSON Parse Exception occurred.");
+			                e.printStackTrace();
+			            } catch (JsonMappingException e) {
+			                System.out.println("Error: JSON Mapping Exception occurred.");
+			                e.printStackTrace();
+			            } catch (IOException e) {
+			                System.out.println("Error: IO Exception occurred.");
+			                e.printStackTrace();
+			            }
+			      } else {
+			          System.out.println("Error: The file does not exist or is empty: " + filePath);
+			      }
+			      
+//				if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() + "-in-match" + KabaddiUtil.JSON_EXTENSION).exists()) {
+//					session_match.setApi_Match(new ObjectMapper().readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() + "-in-match" 
+//							+ KabaddiUtil.JSON_EXTENSION), Api_Match.class));
+//				}
 				break;
 				
 			}
@@ -837,23 +868,32 @@ public class IndexController
 					session_match.setClock(session_clock);
 				}
 				
+				ObjectMapper objectMapper = new ObjectMapper();
+				
 				String filePath = KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY 
                         + session_match.getMatchId() + "-in-match" + KabaddiUtil.JSON_EXTENSION;
 			      File file = new File(filePath);
 			
 			      if (file.exists() && file.length() > 0) {
 			          try {
-			              Api_Match apiMatch = new ObjectMapper().readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() + "-in-match" 
-									+ KabaddiUtil.JSON_EXTENSION), Api_Match.class);
+//			              Api_Match apiMatch = new ObjectMapper().readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() + "-in-match" 
+//									+ KabaddiUtil.JSON_EXTENSION), Api_Match.class);
+//			              session_match.setApi_Match(apiMatch);
+			        	  Api_Match apiMatch = objectMapper.readValue(file, Api_Match.class);
 			              session_match.setApi_Match(apiMatch);
-			          } catch (JsonMappingException e) {
-			              System.out.println("Error: JSON Mapping Exception occurred.");
-			              System.out.println("Location: " + e.getLocation());
-			              System.out.println("Original Message: " + e.getOriginalMessage());
-			              e.printStackTrace();
-			          } catch (IOException e) {
-			              e.printStackTrace();
-			          }
+			          } catch (MismatchedInputException e) {
+			                System.out.println("Error: No content to map due to end-of-input.");
+			                e.printStackTrace();
+			            } catch (JsonParseException e) {
+			                System.out.println("Error: JSON Parse Exception occurred.");
+			                e.printStackTrace();
+			            } catch (JsonMappingException e) {
+			                System.out.println("Error: JSON Mapping Exception occurred.");
+			                e.printStackTrace();
+			            } catch (IOException e) {
+			                System.out.println("Error: IO Exception occurred.");
+			                e.printStackTrace();
+			            }
 			      } else {
 			          System.out.println("Error: The file does not exist or is empty: " + filePath);
 			      }
