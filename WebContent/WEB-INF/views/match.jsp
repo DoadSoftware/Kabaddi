@@ -84,6 +84,25 @@
 	      }
 	  });
  </script>
+ <style>
+ 
+ .footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: calc(100% - 20px); 
+  padding: 10px 20px; 
+  text-align: center;
+  background-color: #A7E3E8;
+}
+
+.footer img {
+  width: 100%;
+  height: 130px;
+  max-width: calc(100% - 20px); 
+}
+
+  </style>
 </head>
 <body onload="afterPageLoad('MATCH');">
 <form:form name="kabaddi_form" autocomplete="off" action="match" method="POST" 
@@ -144,14 +163,15 @@
        </div>
     </div>
   </div>
-  <div style="display:flex;justify-content: center; align-items:center;margin-top:200px;background-size: cover;">
-	<img class="pull-right img-responsive" src="<c:url value="/resources/Images/Idents.jpg"/>" alt="DOAD Logo">
-  </div>
  </div>
  <input type="hidden" id="selected_player_id" name="selected_player_id"></input>
  <%-- <input type="hidden" id="which_keypress" name="which_keypress" value="${session_match.which_key_press}"/>--%>
  <input type="hidden" name="selectedBroadcaster" id="selectedBroadcaster" value="${session_selected_broadcaster}"/>
  <input type="hidden" id="matchFileTimeStamp" name="matchFileTimeStamp" value="${session_match.matchFileTimeStamp}"></input>
 </form:form>
+<div class="footer">
+    <img src="<c:url value="/resources/Images/Idents.jpg"/>" alt="DOAD Logo">
+  </div>
+</body>
 </body>
 </html>
