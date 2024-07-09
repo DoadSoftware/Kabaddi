@@ -91,7 +91,7 @@
   bottom: 0;
   left: 0;
   width: calc(100% - 20px); 
-  padding: 10px 20px; 
+  padding: 20px 20px; 
   text-align: center;
   background-color: #A7E3E8;
 }
@@ -99,7 +99,7 @@
 .footer img {
   width: 100%;
   height: 130px;
-  max-width: calc(100% - 20px); 
+  max-width: calc(100% - 30px); 
 }
 
   </style>
