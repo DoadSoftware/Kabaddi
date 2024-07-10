@@ -524,10 +524,6 @@ public class IndexController
 				if(session_match.getEvents() == null || session_match.getEvents().size() <= 0) 
 					session_match.setEvents(new ArrayList<Event>());
 				
-				session_match.getMatchStats().add(new MatchStats(session_match.getMatchStats().size() + 1, Integer.valueOf(valueToProcess.split(",")[2]), 
-						session_match.getClock().getMatchHalves(),"POINTS", Integer.valueOf(valueToProcess.split(",")[1]), 
-						session_match.getClock().getMatchTotalMilliSeconds(),Integer.valueOf(valueToProcess.split(",")[2]),0,0,0,0,"NO"));
-				
 				if(session_match.getHomeTeamId() == Integer.valueOf(valueToProcess.split(",")[2])) {
 					session_match.setHomeTeamScore(session_match.getHomeTeamScore() + Integer.valueOf(valueToProcess.split(",")[1]));	
 				}
@@ -535,6 +531,10 @@ public class IndexController
 				if(session_match.getAwayTeamId() == Integer.valueOf(valueToProcess.split(",")[2])) {
 					session_match.setAwayTeamScore(session_match.getAwayTeamScore() + Integer.valueOf(valueToProcess.split(",")[1]));
 				}
+				
+				session_match.getMatchStats().add(new MatchStats(session_match.getMatchStats().size() + 1, Integer.valueOf(valueToProcess.split(",")[2]), 
+						session_match.getClock().getMatchHalves(),"POINTS", Integer.valueOf(valueToProcess.split(",")[1]), 
+						session_match.getClock().getMatchTotalMilliSeconds(),Integer.valueOf(valueToProcess.split(",")[2]),0,0,0,0,"NO"));
 				
 				if(session_event.getEvents() == null || session_event.getEvents().size() <= 0) 
 					session_event.setEvents(new ArrayList<Event>());
