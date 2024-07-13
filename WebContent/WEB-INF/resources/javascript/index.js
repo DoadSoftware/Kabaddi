@@ -1795,15 +1795,15 @@ function addItemsToList(whatToProcess, dataToProcess)
 						anchor.value = dataToProcess.homeTeamId;
 						anchor.innerHTML = dataToProcess.homeTeam.teamName1 + ': ' + dataToProcess.homeTeamScore ;
 						anchor.style.fontSize = '30px';
-						
-						if(dataToProcess.homeTeamScore !== null && dataToProcess.homeTeamScore !== undefined && dataToProcess.api_Match.homeTeamScore !== null 
+						anchor.style.color = 'green';
+						/*if(dataToProcess.homeTeamScore !== null && dataToProcess.homeTeamScore !== undefined && dataToProcess.api_Match.homeTeamScore !== null 
 								 && dataToProcess.api_Match.homeTeamScore !== undefined){
 							if(dataToProcess.homeTeamScore != dataToProcess.api_Match.homeTeamScore){
 								anchor.style.color = 'red';
 							}else if(dataToProcess.homeTeamScore == dataToProcess.api_Match.homeTeamScore){
 								anchor.style.color = 'green';
 							}
-						}
+						}*/
 						
 						break;	
 					case 1:
@@ -1812,14 +1812,15 @@ function addItemsToList(whatToProcess, dataToProcess)
 						anchor.value = dataToProcess.awayTeamId;
 						anchor.innerHTML = dataToProcess.awayTeam.teamName1 + ': ' + dataToProcess.awayTeamScore ;
 						anchor.style.fontSize = '30px';
-						if(dataToProcess.awayTeamScore !== null && dataToProcess.awayTeamScore !== undefined && dataToProcess.api_Match.awayTeamScore !== null 
+						anchor.style.color = 'green';
+						/*if(dataToProcess.awayTeamScore !== null && dataToProcess.awayTeamScore !== undefined && dataToProcess.api_Match.awayTeamScore !== null 
 								 && dataToProcess.api_Match.awayTeamScore !== undefined){
 							if(dataToProcess.awayTeamScore != dataToProcess.api_Match.awayTeamScore){
 								anchor.style.color = 'red';
 							}else if(dataToProcess.awayTeamScore == dataToProcess.api_Match.awayTeamScore){
 								anchor.style.color = 'green';
 							}
-						}
+						}*/
 						
 						break;
 					}
@@ -1833,7 +1834,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 			document.getElementById('kabaddi_div').appendChild(table);
 			
 			
-			table = document.createElement('table');
+			/*table = document.createElement('table');
 			table.setAttribute('class', 'table table-bordered');
 			//table.style.border = '5px solid black';
 			tbody = document.createElement('tbody');
@@ -1843,11 +1844,11 @@ function addItemsToList(whatToProcess, dataToProcess)
 			Select.style.fontSize = '22px';
 		    row.insertCell(0).appendChild(Select);
 			table.appendChild(tbody);
-			document.getElementById('kabaddi_div').appendChild(table);
+			document.getElementById('kabaddi_div').appendChild(table);*/
 			
 			
 			
-			// API SCORES
+			/*// API SCORES
 			table = document.createElement('table');
 			table.setAttribute('class', 'table table-bordered');
 			table.style.border = '10px solid black';
@@ -1879,7 +1880,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 			
 			
 			table.appendChild(tbody);
-			document.getElementById('kabaddi_div').appendChild(table);			
+			document.getElementById('kabaddi_div').appendChild(table);	*/		
 		}
 		break;
 	}

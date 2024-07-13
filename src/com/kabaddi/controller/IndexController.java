@@ -868,35 +868,35 @@ public class IndexController
 					session_match.setClock(session_clock);
 				}
 				
-				ObjectMapper objectMapper = new ObjectMapper();
-				
-				String filePath = KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY 
-                        + session_match.getMatchId() + "-in-match" + KabaddiUtil.JSON_EXTENSION;
-			      File file = new File(filePath);
-			
-			      if (file.exists() && file.length() > 0) {
-			          try {
-//			              Api_Match apiMatch = new ObjectMapper().readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() + "-in-match" 
-//									+ KabaddiUtil.JSON_EXTENSION), Api_Match.class);
+//				ObjectMapper objectMapper = new ObjectMapper();
+//				
+//				String filePath = KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY 
+//                        + session_match.getMatchId() + "-in-match" + KabaddiUtil.JSON_EXTENSION;
+//			      File file = new File(filePath);
+//			
+//			      if (file.exists() && file.length() > 0) {
+//			          try {
+////			              Api_Match apiMatch = new ObjectMapper().readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() + "-in-match" 
+////									+ KabaddiUtil.JSON_EXTENSION), Api_Match.class);
+////			              session_match.setApi_Match(apiMatch);
+//			        	  Api_Match apiMatch = objectMapper.readValue(file, Api_Match.class);
 //			              session_match.setApi_Match(apiMatch);
-			        	  Api_Match apiMatch = objectMapper.readValue(file, Api_Match.class);
-			              session_match.setApi_Match(apiMatch);
-			          } catch (MismatchedInputException e) {
-			                System.out.println("Error: No content to map due to end-of-input.");
-			                e.printStackTrace();
-			            } catch (JsonParseException e) {
-			                System.out.println("Error: JSON Parse Exception occurred.");
-			                e.printStackTrace();
-			            } catch (JsonMappingException e) {
-			                System.out.println("Error: JSON Mapping Exception occurred.");
-			                e.printStackTrace();
-			            } catch (IOException e) {
-			                System.out.println("Error: IO Exception occurred.");
-			                e.printStackTrace();
-			            }
-			      } else {
-			          System.out.println("Error: The file does not exist or is empty: " + filePath);
-			      }
+//			          } catch (MismatchedInputException e) {
+//			                System.out.println("Error: No content to map due to end-of-input.");
+//			                e.printStackTrace();
+//			            } catch (JsonParseException e) {
+//			                System.out.println("Error: JSON Parse Exception occurred.");
+//			                e.printStackTrace();
+//			            } catch (JsonMappingException e) {
+//			                System.out.println("Error: JSON Mapping Exception occurred.");
+//			                e.printStackTrace();
+//			            } catch (IOException e) {
+//			                System.out.println("Error: IO Exception occurred.");
+//			                e.printStackTrace();
+//			            }
+//			      } else {
+//			          System.out.println("Error: The file does not exist or is empty: " + filePath);
+//			      }
 //				if(last_match_time_stamp != new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() + 
 //                		"-in-match" + KabaddiUtil.JSON_EXTENSION).lastModified()) {
 //					
