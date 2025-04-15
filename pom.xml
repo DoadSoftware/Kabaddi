@@ -12,12 +12,17 @@
     <failOnMissingWebXml>false</failOnMissingWebXml>
   </properties>
 <dependencies>
+<dependency>
+    <groupId>com.sun.activation</groupId>
+    <artifactId>javax.activation</artifactId>
+    <version>1.2.0</version>
+</dependency>
 
  <dependency>
     <groupId>com.kabaddi</groupId>
     <artifactId>KabaddiLibrary</artifactId>
     <scope>compile</scope>
-    <version>1.70</version>
+    <version>1.71</version>
 </dependency>
   
 <!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
