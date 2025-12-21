@@ -254,8 +254,58 @@ function processUserSelection(whichInput)
 	/*case 'select_configuration_file':
 		processKabaddiProcedures('GET-CONFIG-DATA');
 		break;*/
+	case 'selectHomePlayersPosition': case 'selectAwayPlayersPosition':
+		if(current_player == null) { 
+			current_player = whichInput.id;
+			document.getElementById(current_player).style.border = '2px solid red';
+			return;
+		}
+		if(current_player == whichInput.id) {
+			document.getElementById(current_player).style.border = '';
+			current_player = null;
+			alert('Same batter selected ' + current_player);
+			return;
+		}
+		if(current_player.substring(0,4) == whichInput.id.substring(0,4)) {
+			
+			option = document.getElementById(
+				current_player.substring(0,4) + 'Player_' + current_player.split("_")[1]).selectedIndex;
+			document.getElementById(
+				current_player.substring(0,4) + 'Player_' + current_player.split("_")[1]).selectedIndex 
+				= document.getElementById(whichInput.id.substring(0,4) + 'Player_' 
+				+ whichInput.id.split("_")[1]).selectedIndex;
+			document.getElementById(
+				whichInput.id.substring(0,4) + 'Player_' + whichInput.id.split("_")[1]).selectedIndex = option;	
+				
+			$("#" + whichInput.id.substring(0,4) + 'Player_' + whichInput.id.split("_")[1]).trigger("change");
+			$("#" + current_player.substring(0,4) + 'Player_' + current_player.split("_")[1]).trigger("change");
+					
+			option = document.getElementById(
+				current_player.substring(0,4) + 'CaptainGoalKeeper_' + current_player.split("_")[1]).selectedIndex;
+			document.getElementById(
+				current_player.substring(0,4) + 'CaptainGoalKeeper_' + current_player.split("_")[1]).selectedIndex 
+				= document.getElementById(whichInput.id.substring(0,4) + 'CaptainGoalKeeper_' 
+				+ whichInput.id.split("_")[1]).selectedIndex;
+			document.getElementById(
+				whichInput.id.substring(0,4) + 'CaptainGoalKeeper_' + whichInput.id.split("_")[1]).selectedIndex = option;	
+				
+			$("#" + whichInput.id.substring(0,4) + 'CaptainGoalKeeper_' + whichInput.id.split("_")[1]).trigger("change");
+			$("#" + current_player.substring(0,4) + 'CaptainGoalKeeper_' + current_player.split("_")[1]).trigger("change");
+			
+			document.getElementById(current_player).style.border = '';
+			current_player = null;
+			
+		} else {
+			
+			alert('Different team selected first team = ' + current_player.substring(0,4) 
+				+ ', other team = ' + whichInput.id.substring(0,4) + '. Swap NOT available');
+			document.getElementById(current_player).style.border = '';
+			current_player = null;
+	
+		}
+		break;
+		
 	case 'overwrite_match_stats_index':
-
 		document.getElementById('overwrite_match_stats_player_id').selectedIndex = 0;
 		document.getElementById('overwrite_match_stats_type').value = '';
 		document.getElementById('overwrite_match_stats_total_seconds').value = '';
@@ -267,16 +317,13 @@ function processUserSelection(whichInput)
 				document.getElementById('overwrite_match_stats_total_seconds').value = ms.totalMatchMilliSeconds;
 			}
 		});
-
 		break;
 
 	case 'load_scene_btn':
-	
 		/*if(checkEmpty($('#vizIPAddress'),'IP Address Blank') == false
 			|| checkEmpty($('#vizPortNumber'),'Port Number Blank') == false) {
 			return false;
 		}*/
-    
 	  	document.initialise_form.submit();
 		break;
 	

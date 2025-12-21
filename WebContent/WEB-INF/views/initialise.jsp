@@ -16,7 +16,6 @@
 	  padding: 0;
 	  height: 100%;
 	  width: 100%;
-	  overflow: hidden;
 	  font-family: Arial, sans-serif;
 	  background: url('<c:url value="/resources/Images/bg.png"/>') no-repeat center center fixed;
 	  background-size: cover;
@@ -36,7 +35,6 @@
     margin-left: 34px;
     box-shadow: 10px 4px 4px #9AA2A2;
   }
-
   .header-container img {
     max-width: 140px;
     max-height: 97px;
@@ -49,16 +47,17 @@
   }
 
   .header-container h2 {
-  	margin: 0;
-    font-family: 'Arial Black', sans-serif;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    font-size: 5.2em;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    white-space: nowrap;
-    margin-left: auto;
-    margin-right: 515px;
-  }
+	  margin: 0;
+	  font-family: 'Arial Black', sans-serif;
+	  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+	  font-size: calc(1.5rem + 3vw); /* scales with screen size */
+	  text-transform: uppercase;
+	  letter-spacing: 3px;
+	  white-space: nowrap;
+	  margin-left: auto;
+	  text-align: center;
+	  margin-right: calc(30% + 4vw); /* responsive margin */
+	}
   .initialise-heading {
 	  text-align: center;
 	  text-transform: uppercase;

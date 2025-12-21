@@ -750,12 +750,38 @@ public class IndexController
 			
 		case KabaddiUtil.LOAD_TEAMS:
 			if(!valueToProcess.trim().isEmpty()) {
-				
 				session_match.setHomeTeam(kabaddiService.getTeam(KabaddiUtil.TEAM, valueToProcess.split(",")[0]));
 				session_match.setAwayTeam(kabaddiService.getTeam(KabaddiUtil.TEAM, valueToProcess.split(",")[1]));
+				
+				boolean correctTeamLoaded = false;
+				if(session_match.getHomeSquad() != null && session_match.getHomeSquad().size() > 0) {
+					for (Player plyr : session_match.getHomeSquad()) {
+						if(plyr.getTeamId() == Integer.valueOf(valueToProcess.split(",")[0])) {
+							correctTeamLoaded = true;
+						} else {
+							correctTeamLoaded = false;
+							break;
+						}
+					}
+				}
+				if (correctTeamLoaded == false) {
+					session_match.setHomeSquad(kabaddiService.getPlayers(KabaddiUtil.TEAM, valueToProcess.split(",")[0]));
+				}
 
-				session_match.setHomeSquad(kabaddiService.getPlayers(KabaddiUtil.TEAM, valueToProcess.split(",")[0]));
-				session_match.setAwaySquad(kabaddiService.getPlayers(KabaddiUtil.TEAM, valueToProcess.split(",")[1]));
+				correctTeamLoaded = false;
+				if(session_match.getAwaySquad() != null && session_match.getAwaySquad().size() > 0) {
+					for (Player plyr : session_match.getAwaySquad()) {
+						if(plyr.getTeamId() == Integer.valueOf(valueToProcess.split(",")[1])) {
+							correctTeamLoaded = true;
+						} else {
+							correctTeamLoaded = false;
+							break;
+						}
+					}
+				}
+				if (correctTeamLoaded == false) {
+					session_match.setAwaySquad(kabaddiService.getPlayers(KabaddiUtil.TEAM, valueToProcess.split(",")[1]));
+				}
 			}
 			
 			return JSONObject.fromObject(session_match).toString();
@@ -774,7 +800,6 @@ public class IndexController
 				
 				if(valueToProcess.split(",").length == 2) {
 					if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + valueToProcess.split(",")[1]).exists()) {
-						
 						session_event = new ObjectMapper().readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY +
 								valueToProcess.split(",")[1]), EventFile.class);
 					} else {
@@ -798,7 +823,6 @@ public class IndexController
 				}
 				
 				ObjectMapper objectMapper = new ObjectMapper();
-				
 				  String filePath = KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY 
                         + session_match.getMatchId() + "-in-match" + KabaddiUtil.JSON_EXTENSION;
 			      File file = new File(filePath);
