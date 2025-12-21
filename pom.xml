@@ -3,7 +3,7 @@
    <modelVersion>4.0.0</modelVersion>
   <groupId>Kabaddi</groupId>
   <artifactId>Kabaddi</artifactId>
-  <version>1.215</version>
+  <version>1.216</version>
   <packaging>war</packaging>
   <name>Kabaddi</name>
   <properties>
@@ -22,7 +22,7 @@
     <groupId>com.kabaddi</groupId>
     <artifactId>KabaddiLibrary</artifactId>
     <scope>compile</scope>
-    <version>1.71</version>
+    <version>1.79</version>
 </dependency>
   
 <!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
@@ -268,7 +268,7 @@
 <dependency>
     <groupId>org.springframework</groupId>
     <artifactId>spring-aspects</artifactId>
-    <version>4.1.4.RELEASE</version>
+    <version>6.2.1</version>
 </dependency>
 
 <!-- https://mvnrepository.com/artifact/org.springframework/spring-beans -->
