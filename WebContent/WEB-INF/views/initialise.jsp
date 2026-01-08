@@ -122,8 +122,8 @@
 			  </div>
 			  &nbsp;
 		    <button style="background-color:#2E008B;color:#FEFEFE; font-size: 20px;" class="btn btn-sm" type="button"
-		  		name="load_scene_btn" id="load_scene_btn" onclick="processUserSelection(this)">
-		  		<i class="fas fa-film"></i> Load Scene</button>
+		  		name="submit_btn" id="submit_btn" onclick="processUserSelection(this)">
+		  		<i class="fas fa-film"></i> Submit</button>
 	       </div>
 	    </div>
        </div>

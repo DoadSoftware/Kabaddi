@@ -1,6 +1,5 @@
-var match_data,team_id,leaderboard,home_team,away_team,home_team_name,away_team_name;
+var match_data,team_id,leaderboard,home_team,away_team,home_team_name,away_team_name,graphics,preGraphic,current_batter;
 var isTrue = true;
-var graphics,preGraphic;
 function millisToMinutesAndSeconds(millis) {
   var m = Math.floor(millis / 60000);
   var s = ((millis % 60000) / 1000).toFixed(0);
@@ -251,10 +250,59 @@ function processUserSelectionData(whatToProcess,dataToProcess){
 function processUserSelection(whichInput)
 {	
 	switch ($(whichInput).attr('name')) {
-	/*case 'select_configuration_file':
-		processKabaddiProcedures('GET-CONFIG-DATA');
-		break;*/
 	case 'selectHomePlayersPosition': case 'selectAwayPlayersPosition':
+	
+		if(current_batter == null) { 
+			current_batter = whichInput.id;
+			document.getElementById(current_batter).style.border = '2px solid red';
+			return;
+		}
+		if(current_batter == whichInput.id) {
+			document.getElementById(current_batter).style.border = '';
+			current_batter = null;
+			alert('Same batter selected ' + current_batter);
+			return;
+		}
+		if(current_batter.substring(0,4) == whichInput.id.substring(0,4)) {
+			
+			option = document.getElementById(
+				current_batter.substring(0,4) + 'Player_' + current_batter.split("_")[1]).selectedIndex;
+			document.getElementById(
+				current_batter.substring(0,4) + 'Player_' + current_batter.split("_")[1]).selectedIndex 
+				= document.getElementById(whichInput.id.substring(0,4) + 'Player_' 
+				+ whichInput.id.split("_")[1]).selectedIndex;
+			document.getElementById(
+				whichInput.id.substring(0,4) + 'Player_' + whichInput.id.split("_")[1]).selectedIndex = option;	
+				
+			$("#" + whichInput.id.substring(0,4) + 'Player_' + whichInput.id.split("_")[1]).trigger("change");
+			$("#" + current_batter.substring(0,4) + 'Player_' + current_batter.split("_")[1]).trigger("change");
+					
+			option = document.getElementById(
+				current_batter.substring(0,4) + 'Captain_' + current_batter.split("_")[1]).selectedIndex;
+			document.getElementById(
+				current_batter.substring(0,4) + 'Captain_' + current_batter.split("_")[1]).selectedIndex 
+				= document.getElementById(whichInput.id.substring(0,4) + 'Captain_' 
+				+ whichInput.id.split("_")[1]).selectedIndex;
+			document.getElementById(
+				whichInput.id.substring(0,4) + 'Captain_' + whichInput.id.split("_")[1]).selectedIndex = option;	
+				
+			$("#" + whichInput.id.substring(0,4) + 'Captain_' + whichInput.id.split("_")[1]).trigger("change");
+			$("#" + current_batter.substring(0,4) + 'Captain_' + current_batter.split("_")[1]).trigger("change");
+			
+			document.getElementById(current_batter).style.border = '';
+			current_batter = null;
+			
+		} else {
+			
+			alert('Different team selected first team = ' + current_batter.substring(0,4) 
+				+ ', other team = ' + whichInput.id.substring(0,4) + '. Swap NOT available');
+			document.getElementById(current_batter).style.border = '';
+			current_batter = null;
+	
+		}
+		break;
+		
+/*	case 'selectHomePlayersPosition': case 'selectAwayPlayersPosition':
 		if(current_player == null) { 
 			current_player = whichInput.id;
 			document.getElementById(current_player).style.border = '2px solid red';
@@ -303,7 +351,7 @@ function processUserSelection(whichInput)
 			current_player = null;
 	
 		}
-		break;
+		break;*/
 		
 	case 'overwrite_match_stats_index':
 		document.getElementById('overwrite_match_stats_player_id').selectedIndex = 0;
@@ -319,11 +367,7 @@ function processUserSelection(whichInput)
 		});
 		break;
 
-	case 'load_scene_btn':
-		/*if(checkEmpty($('#vizIPAddress'),'IP Address Blank') == false
-			|| checkEmpty($('#vizPortNumber'),'Port Number Blank') == false) {
-			return false;
-		}*/
+	case 'submit_btn':
 	  	document.initialise_form.submit();
 		break;
 	
@@ -1050,8 +1094,218 @@ function addItemsToList(whatToProcess, dataToProcess)
 		
 	case 'LOAD_TEAMS':
 
-		//var otherSquadWithoutSubs, player_ids;
+		$('#team_selection_div').empty();
+		document.getElementById('team_selection_div').style.display = 'none';
 		
+		if (dataToProcess)
+		{
+			if(dataToProcess.homeSquad.length <=0 || dataToProcess.awaySquad.length <=0) {
+				if(dataToProcess.homeSquad.length <=0) {
+					alert(dataToProcess.homeTeam.teamName1 + ' has no players in the database');
+				} else if(dataToProcess.awaySquad.length <=0) {
+					alert(dataToProcess.awayTeam.teamName1 + ' has no players in the database');
+				}
+				return false;
+			}
+			table = document.createElement('table');
+			table.setAttribute('class', 'table table-bordered');
+			table.setAttribute('id', 'setup_teams');
+			tr = document.createElement('tr');
+			for (var j = 0; j <= 5; j++) {
+			    th = document.createElement('th'); //column
+			    switch (j) {
+				case 0: case 3:
+				    text = document.createTextNode('Pos'); 
+					break;
+				case 1:
+				    text = document.createTextNode(dataToProcess.homeTeam.teamName4); 
+					break;
+				case 2:
+				    text = document.createTextNode(dataToProcess.homeTeam.teamName4 + ' captain'); 
+					break;
+				case 4:
+				    text = document.createTextNode(dataToProcess.awayTeam.teamName4); 
+					break;
+				case 5:
+				    text = document.createTextNode(dataToProcess.awayTeam.teamName4 + ' captain'); 
+					break;
+				}
+			    th.appendChild(text);
+			    tr.appendChild(th);
+			}
+			
+			thead = document.createElement('thead');
+			thead.appendChild(tr);
+			table.appendChild(thead);
+
+			tbody = document.createElement('tbody');
+
+			max_cols = parseInt(6 + parseInt($('#homeSubstitutesPerTeam option:selected').val()));
+			if(parseInt($('#awaySubstitutesPerTeam option:selected').val()) > parseInt($('#homeSubstitutesPerTeam option:selected').val())) {
+				max_cols = parseInt(6 + parseInt($('#awaySubstitutesPerTeam option:selected').val()));
+			}
+			
+			current_batter = null;
+			for(var i=0; i <= max_cols; i++) {
+				row = tbody.insertRow(tbody.rows.length);
+				for(var j=0; j<=5; j++) {
+					switch(j) {
+					case 0: case 3:
+						select = document.createElement('label');
+						select.innerHTML = (i + 1);
+						break;
+					case 1: case 4:
+						select = document.createElement('select');
+						select.style = 'width:75%';
+						if(j==1) {
+							select.name = 'selectHomePlayers';
+							select.id = 'homePlayer_' + (i + 1);
+							dataToProcess.homeSquad.forEach(function(hp,index,arr){
+								option = document.createElement('option');
+								option.value = hp.playerId;
+							    option.text = hp.full_name;
+							    select.appendChild(option);
+							});
+							dataToProcess.homeSubstitutes.forEach(function(hp,index,arr){
+								option = document.createElement('option');
+								option.value = hp.playerId;
+							    option.text = hp.full_name;
+							    select.appendChild(option);
+							});
+							dataToProcess.homeOtherSquad.forEach(function(hp,index,arr){
+								option = document.createElement('option');
+								option.value = hp.playerId;
+							    option.text = hp.full_name;
+							    select.appendChild(option);
+							});
+						} else if(j==4) {
+							select.name = 'selectAwayPlayers';
+							select.id = 'awayPlayer_' + (i + 1);
+							dataToProcess.awaySquad.forEach(function(ap,index,arr){
+								option = document.createElement('option');
+								option.value = ap.playerId;
+							    option.text = ap.full_name;
+							    select.appendChild(option);
+							});
+							dataToProcess.awaySubstitutes.forEach(function(ap,index,arr){
+								option = document.createElement('option');
+								option.value = ap.playerId;
+							    option.text = ap.full_name;
+							    select.appendChild(option);
+							});
+							dataToProcess.awayOtherSquad.forEach(function(ap,index,arr){
+								option = document.createElement('option');
+								option.value = ap.playerId;
+							    option.text = ap.full_name;
+							    select.appendChild(option);
+							});
+						}
+					    select.selectedIndex = i;
+						if(j==1) {
+							dataToProcess.setupHomeTeam.split(",").forEach(function (ht) {
+								if(ht.split("|")[0] == (i + 1)) {
+									select.value = ht.split("|")[1];
+								}
+							});
+						} else if(j==4) {
+							dataToProcess.setupAwayTeam.split(",").forEach(function (at) {
+								if(at.split("|")[0] == (i + 1)) {
+									select.value = at.split("|")[1];
+								}
+							});
+						}
+						break;
+					case 2: case 5:
+						select = document.createElement('select');
+						select.style = 'width:75%';
+						if(j==2) {
+							select.name = 'selectHomeCaptain';
+							select.id = 'homeCaptain_' + (i + 1);
+						} else {
+							select.name = 'selectAwayCaptain';
+							select.id = 'awayCaptain_' + (i + 1);
+						}
+						for(var k=0; k<=1; k++) {
+							option = document.createElement('option');
+							switch (k) {
+							case 0:
+								option.value = '';
+							    option.text = '';
+								break;
+							case 1:
+								option.value = 'captain';
+							    option.text = 'Captain';
+								break;
+							}
+						    select.appendChild(option);
+						}
+						if(i <= 10) {
+							if(j==2) {
+								dataToProcess.setupHomeTeam.split(",").forEach(function (ht) {
+									if(ht.split("|")[0] == (i + 1)) {
+										dataToProcess.homeSquad.forEach(function (hs) {
+											if(ht.split("|")[1] == hs.playerId) {
+												select.value = hs.captain;
+											}
+										});
+									}
+								});
+							} else if(j==5) {
+								dataToProcess.setupAwayTeam.split(",").forEach(function (at) {
+									if(at.split("|")[0] == (i + 1)) {
+										dataToProcess.awaySquad.forEach(function (as) {
+											if(at.split("|")[1] == as.playerId) {
+												select.value = as.captain;
+											}
+										});
+									}
+								});
+							}
+						}
+						break;
+					}
+					switch(j) {
+					case 0: case 3:  
+						cell = row.insertCell(j);
+						if(j==0) {
+							cell.setAttribute("name", 'selectHomePlayersPosition');
+							cell.setAttribute("id", 'homePositionPlayer_' + (i + 1));
+						} else {
+							cell.setAttribute("name", 'selectAwayPlayersPosition');
+							cell.setAttribute("id", 'awayPositionPlayer_' + (i + 1));
+						}
+						cell.appendChild(select);
+						cell.setAttribute('onclick','processUserSelection(this)');
+						break;
+					case 1: case 2:  
+						if(i <= parseInt(10 + parseInt($('#homeSubstitutesPerTeam option:selected').val()))) {
+							row.insertCell(j).appendChild(select);
+							$(select).select2();
+						} else {
+							row.insertCell(j).appendChild(document.createElement('label'));
+						}
+						removeSelectDuplicates('name', select.name)
+						break;
+					case 4: case 5:  
+						if(i <= parseInt(10 + parseInt($('#awaySubstitutesPerTeam option:selected').val()))) {
+							row.insertCell(j).appendChild(select);
+							$(select).select2();
+						} else {
+							row.insertCell(j).appendChild(document.createElement('label'));
+						}
+						removeSelectDuplicates('name', select.name)
+						break;
+					}
+				}
+			}
+			table.appendChild(tbody);
+			document.getElementById('team_selection_div').appendChild(table);
+			document.getElementById('team_selection_div').style.display = '';
+		} 
+		break;		
+		
+/*	case 'LOAD_TEAMS':
+
 		$('#team_selection_div').empty();
 		document.getElementById('team_selection_div').style.display = 'none';
 		
@@ -1246,7 +1500,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 			document.getElementById('team_selection_div').appendChild(table);
 			document.getElementById('team_selection_div').style.display = '';
 		} 
-		break;
+		break;*/
 		
 	case 'POPULATE-OFF_PLAYER':
 		
