@@ -38,9 +38,11 @@ import com.kabaddi.model.Api_Match;
 import com.kabaddi.model.Clock;
 import com.kabaddi.model.Event;
 import com.kabaddi.model.EventFile;
+import com.kabaddi.model.Ground;
 import com.kabaddi.model.Match;
 import com.kabaddi.model.MatchStats;
 import com.kabaddi.model.Player;
+import com.kabaddi.model.Team;
 import com.kabaddi.service.KabaddiService;
 import com.kabaddi.util.KabaddiFunctions;
 import com.kabaddi.util.KabaddiUtil;
@@ -54,7 +56,7 @@ public class IndexController
 	@Autowired
 	KabaddiService kabaddiService;
 	
-	public static String expiry_date = "2025-12-31";
+	public static String expiry_date = "2026-12-31";
 	public static String current_date = "";
 	public static String error_message = "";
 	public static Clock session_clock = new Clock();
@@ -65,6 +67,9 @@ public class IndexController
 	public static Kabaddi session_kabaddi;
 	public static List<Scene> session_selected_scenes;
 	public static long last_match_time_stamp = 0;
+	List<Player> allPlayers = new ArrayList<Player>();
+	List<Team> allTeams = new ArrayList<Team>();
+	List<Ground> allGrounds = new ArrayList<Ground>();
 	
 	public static int total_home_points = 0,total_away_points = 0,touches_points = 0;
 	
@@ -87,6 +92,10 @@ public class IndexController
 		        return name.endsWith(".json") && pathname.isFile();
 		    }
 		}));
+		
+		allPlayers = kabaddiService.getAllPlayer();
+		allTeams = kabaddiService.getTeams();
+		allGrounds = kabaddiService.getGrounds();
 		
 		return "initialise";
 	}
@@ -306,7 +315,8 @@ public class IndexController
 			new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()).createNewFile();
 			new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + session_match.getMatchFileName()).createNewFile();
 			
-			session_match = KabaddiFunctions.populateMatchVariables(kabaddiService, session_match);
+			session_match = KabaddiFunctions.populateMatchVariables(new ObjectMapper().readValue (new File(KabaddiUtil.KABADDI_DIRECTORY + 
+					KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()),Match.class), allPlayers, allTeams, allGrounds);
 
 //			JAXBContext.newInstance(Match.class).createMarshaller().marshal(session_match, 
 //					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()));
@@ -344,7 +354,8 @@ public class IndexController
 						session_match = new ObjectMapper().readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY +
 								valueToProcess.split(",")[0]), Match.class);
 						session_match.setEvents(session_event.getEvents());
-						session_match = KabaddiFunctions.populateMatchVariables(kabaddiService,session_match);
+						session_match = KabaddiFunctions.populateMatchVariables(new ObjectMapper().readValue (new File(KabaddiUtil.KABADDI_DIRECTORY + 
+								KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()),Match.class), allPlayers, allTeams, allGrounds);
 					}
 				}
 			}
@@ -540,7 +551,8 @@ public class IndexController
 				
 			}
 
-			session_match = KabaddiFunctions.populateMatchVariables(kabaddiService, session_match);
+			session_match = KabaddiFunctions.populateMatchVariables(new ObjectMapper().readValue (new File(KabaddiUtil.KABADDI_DIRECTORY + 
+					KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()),Match.class), allPlayers, allTeams, allGrounds);
 			session_match.setEvents(session_event.getEvents());
 			
 			new ObjectMapper().writeValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()), 
@@ -643,7 +655,8 @@ public class IndexController
 					}
 				}
 			}
-			session_match = KabaddiFunctions.populateMatchVariables(kabaddiService, session_match);
+			session_match = KabaddiFunctions.populateMatchVariables(new ObjectMapper().readValue (new File(KabaddiUtil.KABADDI_DIRECTORY + 
+					KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()),Match.class), allPlayers, allTeams, allGrounds);
 			session_match.setEvents(session_event.getEvents());
 
 			new ObjectMapper().writeValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()), 
@@ -861,7 +874,8 @@ public class IndexController
 				session_match.setAwayOtherSquad(KabaddiFunctions.getPlayersFromDB(kabaddiService, KabaddiUtil.AWAY, session_match));
 				break;
 			}
-			session_match = KabaddiFunctions.populateMatchVariables(kabaddiService,session_match);
+			session_match = KabaddiFunctions.populateMatchVariables(new ObjectMapper().readValue (new File(KabaddiUtil.KABADDI_DIRECTORY + 
+					KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()),Match.class), allPlayers, allTeams, allGrounds);
 
 			session_match.setEvents(session_event.getEvents());
 
