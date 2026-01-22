@@ -1239,7 +1239,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 							}
 						    select.appendChild(option);
 						}
-						if(i <= 10) {
+						if(i <= 6) {
 							if(j==2) {
 								dataToProcess.setupHomeTeam.split(",").forEach(function (ht) {
 									if(ht.split("|")[0] == (i + 1)) {
@@ -1278,7 +1278,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 						cell.setAttribute('onclick','processUserSelection(this)');
 						break;
 					case 1: case 2:  
-						if(i <= parseInt(10 + parseInt($('#homeSubstitutesPerTeam option:selected').val()))) {
+						if(i <= parseInt(6 + parseInt($('#homeSubstitutesPerTeam option:selected').val()))) {
 							row.insertCell(j).appendChild(select);
 							$(select).select2();
 						} else {
@@ -1287,7 +1287,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 						removeSelectDuplicates('name', select.name)
 						break;
 					case 4: case 5:  
-						if(i <= parseInt(10 + parseInt($('#awaySubstitutesPerTeam option:selected').val()))) {
+						if(i <= parseInt(6 + parseInt($('#awaySubstitutesPerTeam option:selected').val()))) {
 							row.insertCell(j).appendChild(select);
 							$(select).select2();
 						} else {
