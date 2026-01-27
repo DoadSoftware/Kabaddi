@@ -1241,7 +1241,9 @@ function addItemsToList(whatToProcess, dataToProcess)
 						}
 						if(i <= 6) {
 							if(j==2) {
+								
 								dataToProcess.setupHomeTeam.split(",").forEach(function (ht) {
+									
 									if(ht.split("|")[0] == (i + 1)) {
 										dataToProcess.homeSquad.forEach(function (hs) {
 											if(ht.split("|")[1] == hs.playerId) {
@@ -1262,6 +1264,22 @@ function addItemsToList(whatToProcess, dataToProcess)
 								});
 							}
 						}
+						
+						if(i > 6 && (i-7) <= dataToProcess.homeSubstitutes.length -1){
+							switch(j) {
+							case 2:
+								select.value = dataToProcess.homeSubstitutes[i-7].captain;
+								break;
+							}
+						}
+						if(i > 6 && (i-7) <= dataToProcess.awaySubstitutes.length -1){
+							switch(j) {
+							case 5:
+								select.value = dataToProcess.awaySubstitutes[i-7].captain;
+								break;
+							}
+						}
+							
 						break;
 					}
 					switch(j) {
