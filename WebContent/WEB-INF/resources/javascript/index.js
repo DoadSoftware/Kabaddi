@@ -1,4 +1,4 @@
-var match_data,team_id,leaderboard,home_team,away_team,home_team_name,away_team_name,graphics,preGraphic,current_batter;
+var match_data,team_id,leaderboard,home_team,away_team,home_team_name,away_team_name,graphics,preGraphic,current_batter,data_type;
 var isTrue = true;
 function millisToMinutesAndSeconds(millis) {
   var m = Math.floor(millis / 60000);
@@ -1163,19 +1163,19 @@ function addItemsToList(whatToProcess, dataToProcess)
 							dataToProcess.homeSquad.forEach(function(hp,index,arr){
 								option = document.createElement('option');
 								option.value = hp.playerId;
-							    option.text = hp.full_name;
+							    option.text = hp.jersey_number + ' - ' +  hp.full_name;
 							    select.appendChild(option);
 							});
 							dataToProcess.homeSubstitutes.forEach(function(hp,index,arr){
 								option = document.createElement('option');
 								option.value = hp.playerId;
-							    option.text = hp.full_name;
+							    option.text = hp.jersey_number + ' - ' + hp.full_name;
 							    select.appendChild(option);
 							});
 							dataToProcess.homeOtherSquad.forEach(function(hp,index,arr){
 								option = document.createElement('option');
 								option.value = hp.playerId;
-							    option.text = hp.full_name;
+							    option.text = hp.jersey_number + ' - ' + hp.full_name;
 							    select.appendChild(option);
 							});
 						} else if(j==4) {
@@ -1184,19 +1184,19 @@ function addItemsToList(whatToProcess, dataToProcess)
 							dataToProcess.awaySquad.forEach(function(ap,index,arr){
 								option = document.createElement('option');
 								option.value = ap.playerId;
-							    option.text = ap.full_name;
+							    option.text = ap.jersey_number + ' - ' + ap.full_name;
 							    select.appendChild(option);
 							});
 							dataToProcess.awaySubstitutes.forEach(function(ap,index,arr){
 								option = document.createElement('option');
 								option.value = ap.playerId;
-							    option.text = ap.full_name;
+							    option.text = ap.jersey_number + ' - ' + ap.full_name;
 							    select.appendChild(option);
 							});
 							dataToProcess.awayOtherSquad.forEach(function(ap,index,arr){
 								option = document.createElement('option');
 								option.value = ap.playerId;
-							    option.text = ap.full_name;
+							    option.text = ap.jersey_number + ' - ' + ap.full_name;
 							    select.appendChild(option);
 							});
 						}
@@ -1863,7 +1863,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 		for(var iRow = 0;iRow <= 0;iRow++) {
 			
 			row = tbody.insertRow(tbody.rows.length);
-			max_cols = 4;
+			max_cols = 6;
 			
 			for(var iCol = 0;iCol <= max_cols;iCol++) {
 				
@@ -1883,15 +1883,25 @@ function addItemsToList(whatToProcess, dataToProcess)
 						option.style.backgroundColor ='green';
 						break;
 					case 1:
+						option.id = 'points_raid';
+						option.value = 'Tie-Breaker\r\nRaid Points';
+						option.style.backgroundColor ='green';
+						break;
+					case 2:
+						option.id = 'points_tackle';
+						option.value = 'Tie-Breaker\r\nTackle Points';
+						option.style.backgroundColor ='green';
+						break;
+					case 3:
 						option.id = 'replace';
 						option.value = 'Replace';
 						break;
-					case 2:
+					case 4:
 						option.id = 'undo';
 						option.value = 'Undo';
 						option.style.backgroundColor ='grey';
 						break;
-					case 3:
+					case 5:
 						option.id = 'overwrite';
 						option.value = 'Overwrite';
 						option.style.backgroundColor ='blue';
@@ -1901,7 +1911,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 						option.value = 'Raider';
 						option.style.width = '120px';
 						break;	*/
-					case 4:
+					case 6:
 						option.name = 'cancel_event_btn';
 						option.id = option.name;
 						option.value = 'Cancel';
@@ -1916,7 +1926,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 				if(option.id) {
 					
 					switch (option.id) {
-					case 'overwrite': case 'points':
+					case 'overwrite': case 'points': case 'points_raid': case 'points_tackle':
 						
 						option.setAttribute('data-toggle', 'dropdown');
 						option.setAttribute('aria-haspopup', 'true');
@@ -1984,14 +1994,14 @@ function addItemsToList(whatToProcess, dataToProcess)
 							}
 							break;
 						
-						case 'points':
+						case 'points': case 'points_raid': case 'points_tackle':
 						
 							for(var ibound = 0; ibound <= 15; ibound++) 
 							{
 						    	anchor = document.createElement('a');
 							    anchor.className = 'btn btn-success';
 								
-								anchor.id = ibound;
+								anchor.id = ibound + ',' + option.id;
 								anchor.innerText = ibound;
 							    
 							    anchor.setAttribute('onclick','processWaitingButtonSpinner("START_WAIT_TIMER");processKabaddiProcedures("LOG_EVENT",this);');
